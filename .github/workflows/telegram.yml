@@ -1,21 +1,31 @@
-name: Notify Telegram
+name: Telegram Notification
 
-on:
-  push:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Send Telegram Message
+      - name: Send to Telegram Topic
+        env:
+          TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
         run: |
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMessage \
-          -H "Content-Type: application/json" \
-          -d '{
-            "chat_id": "${{ secrets.CHAT_ID }}",
-            "message_thread_id": 5,
-            "text": "🚀 New push to ${{ github.repository }}\n👤 Author: ${{ github.actor }}\n📝 Message: ${{ github.event.head_commit.message }}\n\n🔗 View: ${{ github.event.head_commit.url }}"
-          }'
+          curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage \
+          -H 'Content-Type: application/json' \
+          -d "{
+            \"chat_id\": \"$CHAT_ID\",
+            \"message_thread_id\": 5,
+            \"parse_mode\": \"markdown\",
+            \"text\": \"🔔 *New Update in $REPO*\n\n🌿 *Branch:* $BRANCH\n👤 *User:* $ACTOR\n📝 *Commit:* $COMMIT_MSG\",
+            \"reply_markup\": {
+              \"inline_keyboard\": [[
+                { \"text\": \"🔗 View Changes\", \"url\": \"$COMMIT_URL\" }
+              ]]
+            }
+          }"
