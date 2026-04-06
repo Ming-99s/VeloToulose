@@ -6,7 +6,6 @@ class Ride {
   final String? endStationId; // null = ride still in progress
   final DateTime startTime;
   final DateTime? endTime; // null = ride still in progress
-  final double distance;
 
   static const int freeMinutes = 30;
 
@@ -18,7 +17,6 @@ class Ride {
     this.endStationId,
     required this.startTime,
     this.endTime,
-    this.distance = 0,
   });
 
   // Derived — computed from start/end time
@@ -52,7 +50,6 @@ class Ride {
     String? endStationId,
     DateTime? startTime,
     DateTime? endTime,
-    double? distance,
   }) {
     return Ride(
       rideId: rideId ?? this.rideId,
@@ -62,7 +59,6 @@ class Ride {
       endStationId: endStationId ?? this.endStationId,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
-      distance: distance ?? this.distance,
     );
   }
 }
