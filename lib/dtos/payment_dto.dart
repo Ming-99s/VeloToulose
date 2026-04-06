@@ -28,7 +28,6 @@ class RideDto {
       endTime: json[endTimeKey] != null
           ? DateTime.parse(json[endTimeKey])
           : null, // nullable — ride in progress
-      distance: (json[distanceKey] as num).toDouble(),
     );
   }
 
@@ -40,7 +39,6 @@ class RideDto {
       endStationIdKey: ride.endStationId,
       startTimeKey: ride.startTime.toIso8601String(),
       endTimeKey: ride.endTime?.toIso8601String(),
-      distanceKey: ride.distance,
       // cost and duration NOT stored — they are derived
     };
   }
