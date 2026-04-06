@@ -1,11 +1,10 @@
 name: Telegram Notification
 
 on:
-  push:
-    # triggers on all branches
+  push:         # triggers on all branches
   pull_request:
     branches:
-      - main
+      - main   # PR notifications only for main
 
 jobs:
   notify:
@@ -14,29 +13,34 @@ jobs:
       - name: Send Telegram Notification
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-          TOPIC_ID: 5
+          CHAT_ID: -1003797822180   # your group ID with -100 prefix
+          TOPIC_ID: 5               # your forum topic ID
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
         run: |
           # Determine commit message & URL safely
-          if [ "${{ github.event_name }}" = "push" ]; then
-            COMMIT_MSG="${{ github.event.head_commit.message }}"
-            COMMIT_URL="${{ github.event.head_commit.url }}"
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.commits }}" != "[]" ]; then
+            COMMIT_MSG="${{ github.event.commits[0].message }}"
+            COMMIT_URL="${{ github.event.commits[0].url }}"
             EVENT_TYPE="Push"
-          else
-            # For PRs, use PR title & URL
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
             COMMIT_MSG="${{ github.event.pull_request.title }}"
             COMMIT_URL="${{ github.event.pull_request.html_url }}"
             EVENT_TYPE="Pull Request"
+          else
+            COMMIT_MSG="No commit info available"
+            COMMIT_URL=""
+            EVENT_TYPE="${{ github.event_name }}"
           fi
 
+          # Send message to Telegram forum topic
           curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage \
           -H 'Content-Type: application/json' \
           -d '{
             "chat_id": "'"$CHAT_ID"'",
             "message_thread_id": "'"$TOPIC_ID"'",
             "parse_mode": "markdown",
-            "text": "🔔 *New '"$EVENT_TYPE"' in '"$REPO"'*\n\n👤 *User:* '"$ACTOR"'\n📝 *Message:* '"$COMMIT_MSG"'\n🔗 [View Changes]('"$COMMIT_URL"')",
+            "text": "🔔 *New '"$EVENT_TYPE"' in '"$REPO"'*\n\n🌿 *Branch:* '"$BRANCH"'\n👤 *User:* '"$ACTOR"'\n📝 *Message:* '"$COMMIT_MSG"'\n'"$([ -n "$COMMIT_URL" ] && echo "🔗 [View Changes]($COMMIT_URL)")"'",
             "disable_web_page_preview": true
           }'
