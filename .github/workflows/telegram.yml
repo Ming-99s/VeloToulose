@@ -1,10 +1,9 @@
 name: Telegram Notification
-
 on:
-  push:         # triggers on all branches
+  push:
   pull_request:
     branches:
-      - main   # PR notifications only for main
+      - main
 
 jobs:
   notify:
@@ -13,34 +12,45 @@ jobs:
       - name: Send Telegram Notification
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: -1003797822180   # your group ID with -100 prefix
-          TOPIC_ID: 5               # your forum topic ID
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          TOPIC_ID: ${{ secrets.TOPIC_ID }}
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}
           BRANCH: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+          
+          HEAD_COMMIT_MSG: ${{ github.event.head_commit.message }}
+          HEAD_COMMIT_URL: ${{ github.event.head_commit.url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          # Determine commit message & URL safely
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.commits }}" != "[]" ]; then
-            COMMIT_MSG="${{ github.event.commits[0].message }}"
-            COMMIT_URL="${{ github.event.commits[0].url }}"
+          if [ "$EVENT_NAME" = "push" ]; then
+            COMMIT_MSG="$HEAD_COMMIT_MSG"
+            COMMIT_URL="$HEAD_COMMIT_URL"
             EVENT_TYPE="Push"
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            COMMIT_MSG="${{ github.event.pull_request.title }}"
-            COMMIT_URL="${{ github.event.pull_request.html_url }}"
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            COMMIT_MSG="$PR_TITLE"
+            COMMIT_URL="$PR_URL"
             EVENT_TYPE="Pull Request"
           else
             COMMIT_MSG="No commit info available"
             COMMIT_URL=""
-            EVENT_TYPE="${{ github.event_name }}"
+            EVENT_TYPE="$EVENT_NAME"
           fi
 
-          # Send message to Telegram forum topic
-          curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "chat_id": "'"$CHAT_ID"'",
-            "message_thread_id": "'"$TOPIC_ID"'",
-            "parse_mode": "markdown",
-            "text": "🔔 *New '"$EVENT_TYPE"' in '"$REPO"'*\n\n🌿 *Branch:* '"$BRANCH"'\n👤 *User:* '"$ACTOR"'\n📝 *Message:* '"$COMMIT_MSG"'\n'"$([ -n "$COMMIT_URL" ] && echo "🔗 [View Changes]($COMMIT_URL)")"'",
-            "disable_web_page_preview": true
-          }'
+          # Build link line safely
+          LINK_LINE=""
+          if [ -n "$COMMIT_URL" ]; then
+            LINK_LINE="\n🔗 [View Changes]($COMMIT_URL)"
+          fi
+
+          TEXT=$(printf "🔔 *New %s in %s*\n\n🌿 *Branch:* %s\n👤 *User:* %s\n📝 *Message:* %s%s" \
+            "$EVENT_TYPE" "$REPO" "$BRANCH" "$ACTOR" "$COMMIT_MSG" "$LINK_LINE")
+
+          curl -s -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg chat_id "$CHAT_ID" \
+              --arg thread_id "$TOPIC_ID" \
+              --arg text "$TEXT" \
+              '{chat_id: $chat_id, message_thread_id: $thread_id, parse_mode: "Markdown", text: $text, disable_web_page_preview: true}')"
