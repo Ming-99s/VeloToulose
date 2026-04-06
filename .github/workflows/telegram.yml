@@ -13,10 +13,9 @@ jobs:
       - name: Send Telegram Message
         run: |
           curl -s -X POST https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.CHAT_ID }} \
-          -d message_thread_id=5 \
-          --data-urlencode "text=🚀 New push to ${{ github.repository }}
-          👤 Author: ${{ github.actor }}
-          📝 Message: ${{ github.event.head_commit.message }}
-          
-          🔗 View: ${{ github.event.head_commit.url }}"
+          -H "Content-Type: application/json" \
+          -d '{
+            "chat_id": "${{ secrets.CHAT_ID }}",
+            "message_thread_id": 5,
+            "text": "🚀 New push to ${{ github.repository }}\n👤 Author: ${{ github.actor }}\n📝 Message: ${{ github.event.head_commit.message }}\n\n🔗 View: ${{ github.event.head_commit.url }}"
+          }'
