@@ -1,10 +1,9 @@
 name: Telegram Notification
-
 on:
   push:
     branches:
-      - '**'        # This forces it to watch EVERY branch (including Ming)
-  pull_request:     # This handles the Merges you mentioned
+      - '**'
+  pull_request:
     branches:
       - main
 
@@ -19,20 +18,25 @@ jobs:
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}
           BRANCH: ${{ github.ref_name }}
-          # Head commit is best for direct pushes
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
-          COMMIT_URL: ${{ github.event.head_commit.url }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.pull_request.title }}
+          COMMIT_URL: ${{ github.event.head_commit.url || github.event.pull_request.html_url }}
         run: |
-          curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage \
-          -H 'Content-Type: application/json' \
-          -d "{
-            \"chat_id\": \"$CHAT_ID\",
-            \"message_thread_id\": 5,
-            \"parse_mode\": \"markdown\",
-            \"text\": \"🔔 *New Update in $REPO*\n\n🌿 *Branch:* $BRANCH\n👤 *User:* $ACTOR\n📝 *Commit:* $COMMIT_MSG\",
-            \"reply_markup\": {
-              \"inline_keyboard\": [[
-                { \"text\": \"🔗 View Changes\", \"url\": \"$COMMIT_URL\" }
-              ]]
-            }
-          }"
+          PAYLOAD=$(jq -n \
+            --arg chat_id "$CHAT_ID" \
+            --arg text "🔔 *New Update in $REPO*\n\n🌿 *Branch:* $BRANCH\n👤 *User:* $ACTOR\n📝 *Commit:* $COMMIT_MSG" \
+            --arg url "$COMMIT_URL" \
+            '{
+              chat_id: $chat_id,
+              message_thread_id: 5,
+              parse_mode: "markdown",
+              text: $text,
+              reply_markup: {
+                inline_keyboard: [[
+                  { text: "🔗 View Changes", url: $url }
+                ]]
+              }
+            }')
+
+          curl -s -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
+            -H 'Content-Type: application/json' \
+            -d "$PAYLOAD"
