@@ -1,0 +1,19 @@
+name: Notify Telegram
+
+on:
+  push:
+    branches:
+      - main   # change if your branch is different
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Telegram Message
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.CHAT_ID }} \
+          -d text="🚀 New push to main
+👤 ${{ github.actor }}
+📝 ${{ github.event.head_commit.message }}"
