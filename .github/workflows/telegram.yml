@@ -1,6 +1,12 @@
 name: Telegram Notification
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - '**'        # This forces it to watch EVERY branch (including Ming)
+  pull_request:     # This handles the Merges you mentioned
+    branches:
+      - main
 
 jobs:
   notify:
@@ -13,6 +19,7 @@ jobs:
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}
           BRANCH: ${{ github.ref_name }}
+          # Head commit is best for direct pushes
           COMMIT_MSG: ${{ github.event.head_commit.message }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
         run: |
