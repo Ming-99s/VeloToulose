@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:velo_toulose/ui/screen/pass_screen/view/pass_view.dart';
 
 void mainCommon(List<InheritedProvider> providers){
     runApp(
     MultiProvider(
       providers: providers,
-      child: MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(fontFamily: 'PlusJakartaSans'),
+        home: const PassView(),
+      ),
     ),
   );
 }
