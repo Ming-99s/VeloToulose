@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
-import 'package:velo_toulose/ui/widgets/pass_cart.dart';
+import 'package:velo_toulose/ui/widgets/pass_card.dart';
 
 class PassView extends StatefulWidget {
   const PassView({super.key});
