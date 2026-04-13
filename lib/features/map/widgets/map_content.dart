@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:velo_toulose/core/constant/app_color.dart';
+import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/features/map/utils/distance_format.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
+import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
+import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
 import 'package:velo_toulose/features/map/widgets/search_bar.dart';
+import 'package:velo_toulose/models/station.dart';
 
 class MapContent extends StatefulWidget {
   const MapContent({super.key});
@@ -29,6 +35,7 @@ class _MapContentState extends State<MapContent> {
     final viewModel = context.read<MapViewModel>();
 
     await viewModel.getUserLocation();
+    await viewModel.loadStations();
 
     if (viewModel.userLocation != null && mounted) {
       _mapController.move(viewModel.userLocation!, 15.0);
@@ -49,6 +56,7 @@ class _MapContentState extends State<MapContent> {
             interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
           ),
           children: [
+
             TileLayer(
               urlTemplate:
                   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -96,10 +104,24 @@ class _MapContentState extends State<MapContent> {
                   ),
                 ],
               ),
+              if (viewModel.stations.isNotEmpty)
+              MarkerLayer(
+                markers: viewModel.stations.map((station) {
+                  return Marker(
+                    point: station.location,
+                    width: 60,
+                    height: 35,
+                    child: GestureDetector(
+                      onTap: () => viewModel.selectStation(station),
+                      child: BuildStationMarkerWidget(station: station,),
+                    ),
+                  );
+                }).toList(),
+              ),
           ],
         ),
 
-Positioned(
+        Positioned(
           top: 0,
           left: 0,
           right: 0,
@@ -132,3 +154,6 @@ Positioned(
     );
   }
 }
+
+
+
