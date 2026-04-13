@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:velo_toulose/models/bike.dart';
 import 'package:velo_toulose/models/station.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
 import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
@@ -8,19 +9,22 @@ import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
 class MapViewModel extends ChangeNotifier {
   LatLng? userLocation;
   bool isLoading = false;
-  Station? selectedStation; 
+  Station? selectedStation;
 
   List<Station> stations = [];
+  List<Bike> bikes = [];
 
   void selectStation(Station station) {
     selectedStation = station;
     notifyListeners();
+    loadBikesByStation(station.stationId);
   }
 
   void clearSelectedStation() {
     selectedStation = null;
     notifyListeners();
   }
+
   // Phnom Penh as fallback if location fails
   static const LatLng fallback = LatLng(11.5564, 104.9282);
   final StationRepostiory _stationRepo = StationRepositoryMock();
@@ -28,6 +32,19 @@ class MapViewModel extends ChangeNotifier {
   Future<void> loadStations() async {
     stations = await _stationRepo.loadStations();
     notifyListeners();
+  }
+
+  Future<void> loadBikesByStation(String stationid) async {
+    bikes = await _stationRepo.loadBikesByStation(stationid);
+    notifyListeners();
+  }
+
+  List<Bike> getBikesAt(Station station) {
+    return bikes
+        .where(
+          (bike) => station.slots.any((slot) => slot.bikeId == bike.bikeId),
+        )
+        .toList();
   }
 
   double? getDistanceTo(Station station) {
@@ -40,7 +57,6 @@ class MapViewModel extends ChangeNotifier {
   Future<void> getUserLocation() async {
     isLoading = true;
     notifyListeners();
-    
 
     try {
       // check if location service is enabled
