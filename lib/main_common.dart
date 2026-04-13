@@ -3,19 +3,25 @@ import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/widgets/navbar.dart';
 import 'package:velo_toulose/features/map/view/map_screen.dart';
+import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
+import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
 import 'package:velo_toulose/features/profile/view/profile_screen.dart';
 
 void mainCommon(List<InheritedProvider> providers) {
   runApp(
-    // MultiProvider(
-    //   providers: providers,
-    //   child: MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()),
-    // ),
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'PlusJakartaSans'),
-      home: MyApp(),
-  )
+    MultiProvider(
+      providers: providers,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false, 
+              theme: ThemeData(fontFamily: 'PlusJakartaSans'),
+
+        home: MyApp()),
+    ),
+  //   MaterialApp(
+  //     debugShowCheckedModeBanner: false,
+  //     theme: ThemeData(fontFamily: 'PlusJakartaSans'),
+  //     home: MyApp(),
+  // )
   );
 }
 
@@ -38,13 +44,34 @@ class _MyAppState extends State<MyApp> {
   final List<Widget> _page = [MapScreen(), ProfileScreen()];
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<MapViewModel>();
+
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: AppColor.background,
         body: 
         Stack(
           children: [
-            _page[_selectedIndex],  
+            IndexedStack(
+              index: _selectedIndex,
+              children: _page,
+            ),
+
+        if (viewModel.selectedStation != null)
+            DraggableScrollableSheet(
+              initialChildSize: 0.3, // starts at 30% of screen
+              minChildSize: 0.2, // can drag down to 20%
+              maxChildSize: 0.7, // can drag up to 70%
+              builder: (context, scrollController) {
+                return BottomSheetWidget(
+                  station: viewModel.selectedStation!,
+                  viewModel: viewModel,
+                  scrollController: scrollController, 
+                );
+              },
+            ),
             Positioned(
+              
               bottom: 0,
               left: 0,
               right: 0,
