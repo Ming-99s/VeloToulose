@@ -1,4 +1,5 @@
 import 'package:provider/provider.dart';
+import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
 
 List<InheritedProvider> get devProviders {
@@ -17,6 +18,9 @@ List<InheritedProvider> get devProviders {
     // // 3 - Inject the  app setting state
     // ChangeNotifierProvider<AppSettingsState>(
     //   create: (_) => AppSettingsState(repository: appSettingsRepository),
+
+    ChangeNotifierProvider<MapViewModel>(create: (_) => MapViewModel()),
+
   ];
 }
 

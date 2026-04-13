@@ -1,7 +1,6 @@
 enum SlotStatus {
   free,
-  occupied,
-  defective;
+  occupied;
 
   static SlotStatus fromString(String value) {
     return SlotStatus.values.firstWhere(

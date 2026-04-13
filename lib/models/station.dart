@@ -1,20 +1,18 @@
+import 'package:latlong2/latlong.dart';
+
 import 'slot.dart';
 
 class Station {
   final String stationId;
   final String name;
-  final String address;
-  final double latitude;
-  final double longitude;
+  final LatLng location;
   final int capacity;
   final List<Slot> slots;
 
   const Station({
     required this.stationId,
     required this.name,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
+    required this.location,
     required this.capacity,
     required this.slots,
   });
@@ -30,18 +28,14 @@ class Station {
   Station copyWith({
     String? stationId,
     String? name,
-    String? address,
-    double? latitude,
-    double? longitude,
+    LatLng? location,
     int? capacity,
     List<Slot>? slots,
   }) {
     return Station(
       stationId: stationId ?? this.stationId,
       name: name ?? this.name,
-      address: address ?? this.address,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
+      location: location ?? this.location,
       capacity: capacity ?? this.capacity,
       slots: slots ?? this.slots,
     );
