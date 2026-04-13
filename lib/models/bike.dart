@@ -4,13 +4,11 @@ import 'package:velo_toulose/core/enum/bike_status.dart';
 class Bike {
   final String bikeId;
   final String type;
-  final int batteryLevel;
   final String? slotId; 
 
   const Bike({
     required this.bikeId,
     required this.type,
-    required this.batteryLevel,
     this.slotId,
   });
 
@@ -37,7 +35,6 @@ class Bike {
     return Bike(
       bikeId: bikeId ?? this.bikeId,
       type: type ?? this.type,
-      batteryLevel: batteryLevel ?? this.batteryLevel,
       slotId: clearSlotId ? null : slotId ?? this.slotId,
     );
   }

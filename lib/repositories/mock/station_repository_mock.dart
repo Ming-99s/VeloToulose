@@ -1,5 +1,6 @@
 import 'package:latlong2/latlong.dart';
 import 'package:velo_toulose/core/enum/slot_status.dart';
+import 'package:velo_toulose/models/bike.dart';
 import 'package:velo_toulose/models/station.dart';
 import 'package:velo_toulose/models/slot.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
@@ -23,6 +24,31 @@ class StationRepositoryMock implements StationRepostiory{
       );
     });
   }
+  List<Bike> _buildBikes({required String stationId, required int count}) {
+    return List.generate(count, (i) {
+      final slotNumber = i + 1;
+      return Bike(
+        bikeId: 'bike_${stationId}_$slotNumber',
+        type: 'Classic',
+        slotId: '${stationId}_slot_$slotNumber',
+      );
+    });
+  }
+
+  @override
+  Future<List<Bike>> loadBikesByStation(String stationId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // mock bikes — in real app this comes from API
+    final allBikes = {
+      '1': _buildBikes(stationId: '1', count: 5),
+      '2': _buildBikes(stationId: '2', count: 2),
+      '3': _buildBikes(stationId: '3', count: 0),
+    };
+
+    return allBikes[stationId] ?? [];
+  }
+
 
   @override
   Future<List<Station>> loadStations() async {

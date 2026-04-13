@@ -57,18 +57,30 @@ class _MyAppState extends State<MyApp> {
               children: _page,
             ),
 
-        if (viewModel.selectedStation != null)
-            DraggableScrollableSheet(
-              initialChildSize: 0.3, // starts at 30% of screen
-              minChildSize: 0.2, // can drag down to 20%
-              maxChildSize: 0.7, // can drag up to 70%
-              builder: (context, scrollController) {
-                return BottomSheetWidget(
-                  station: viewModel.selectedStation!,
-                  viewModel: viewModel,
-                  scrollController: scrollController, 
-                );
-              },
+if (viewModel.selectedStation != null)
+            Positioned.fill(
+              child: DraggableScrollableSheet(
+                initialChildSize: 0.4,
+                minChildSize: 0.0, 
+                maxChildSize: 0.8, 
+                snap: true, 
+                snapSizes: const [0.0, 0.4, 0.8], 
+                builder: (context, scrollController) {
+                  return NotificationListener<DraggableScrollableNotification>(
+                    onNotification: (notification) {
+                      if (notification.extent < 0.05) {
+                        viewModel.clearSelectedStation();
+                      }
+                      return true;
+                    },
+                    child: BottomSheetWidget(
+                      station: viewModel.selectedStation!,
+                      viewModel: viewModel,
+                      scrollController: scrollController,
+                    ),
+                  );
+                },
+              ),
             ),
             Positioned(
               

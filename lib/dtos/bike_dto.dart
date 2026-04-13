@@ -14,7 +14,6 @@ class BikeDto {
     return Bike(
       bikeId: id,
       type: json[typeKey],
-      batteryLevel: json[batteryLevelKey],
       slotId: json[slotIdKey], // nullable — null means bike is on a ride
     );
   }
@@ -22,7 +21,6 @@ class BikeDto {
   Map<String, dynamic> toJson(Bike bike) {
     return {
       typeKey: bike.type,
-      batteryLevelKey: bike.batteryLevel,
       slotIdKey: bike.slotId,
       // status NOT stored — it is derived from slotId
     };
