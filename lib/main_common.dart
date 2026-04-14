@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/widgets/navbar.dart';
-import 'package:velo_toulose/features/map/view/map_screen.dart';
+import 'package:velo_toulose/features/map/map_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
-import 'package:velo_toulose/features/profile/view/profile_screen.dart';
+import 'package:velo_toulose/features/profile/profile_screen.dart';
+import 'package:velo_toulose/features/splash/view/splash_screen.dart';
 
 void mainCommon(List<InheritedProvider> providers) {
   runApp(
@@ -15,7 +16,7 @@ void mainCommon(List<InheritedProvider> providers) {
         debugShowCheckedModeBanner: false, 
               theme: ThemeData(fontFamily: 'PlusJakartaSans'),
 
-        home: MyApp()),
+        home: SplashScreen(nextScreen: MyApp(),)),
     ),
   //   MaterialApp(
   //     debugShowCheckedModeBanner: false,
@@ -36,6 +37,13 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
+    final viewModel = context.read<MapViewModel>();
+
+    // Clear when leaving Map screen
+    if (_selectedIndex == 0) {
+      viewModel.clearSelectedStation();
+    }
+
     setState(() {
       _selectedIndex = index;
     });
@@ -57,18 +65,30 @@ class _MyAppState extends State<MyApp> {
               children: _page,
             ),
 
-        if (viewModel.selectedStation != null)
-            DraggableScrollableSheet(
-              initialChildSize: 0.3, // starts at 30% of screen
-              minChildSize: 0.2, // can drag down to 20%
-              maxChildSize: 0.7, // can drag up to 70%
-              builder: (context, scrollController) {
-                return BottomSheetWidget(
-                  station: viewModel.selectedStation!,
-                  viewModel: viewModel,
-                  scrollController: scrollController, 
-                );
-              },
+    if (viewModel.selectedStation != null)
+            Positioned.fill(
+              child: DraggableScrollableSheet(
+                initialChildSize: 0.4,
+                minChildSize: 0.0, 
+                maxChildSize: 0.8, 
+                snap: true, 
+                snapSizes: const [0.0, 0.4, 0.8], 
+                builder: (context, scrollController) {
+                  return NotificationListener<DraggableScrollableNotification>(
+                    onNotification: (notification) {
+                      if (notification.extent < 0.05) {
+                        viewModel.clearSelectedStation();
+                      }
+                      return true;
+                    },
+                    child: BottomSheetWidget(
+                      station: viewModel.selectedStation!,
+                      viewModel: viewModel,
+                      scrollController: scrollController,
+                    ),
+                  );
+                },
+              ),
             ),
             Positioned(
               

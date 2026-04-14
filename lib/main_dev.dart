@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
+import 'package:velo_toulose/repositories/local/pref_repository.dart';
 
 List<InheritedProvider> get devProviders {
   // final appSettingsRepository = AppSettingsRepositoryMock();
@@ -20,6 +21,8 @@ List<InheritedProvider> get devProviders {
     //   create: (_) => AppSettingsState(repository: appSettingsRepository),
 
     ChangeNotifierProvider<MapViewModel>(create: (_) => MapViewModel()),
+    Provider<PreferencesRepository>(create: (_) => PreferencesRepository()),
+
 
   ];
 }
