@@ -135,7 +135,7 @@ class BottomSheetWidget extends StatelessWidget {
               children: [
                 ...viewModel
                     .getBikesAt(station)
-                    .map((bike) => BikeTile(bike: bike))
+                    .map((bike) => BikeTile(bike: bike, stationName: station.name))
                     .toList(),
 
                 if (viewModel.getBikesAt(station).isEmpty)
