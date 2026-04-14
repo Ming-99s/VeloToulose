@@ -6,6 +6,7 @@ import 'package:velo_toulose/features/map/map_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
 import 'package:velo_toulose/features/profile/profile_screen.dart';
+import 'package:velo_toulose/features/splash/view/splash_screen.dart';
 
 void mainCommon(List<InheritedProvider> providers) {
   runApp(
@@ -15,7 +16,7 @@ void mainCommon(List<InheritedProvider> providers) {
         debugShowCheckedModeBanner: false, 
               theme: ThemeData(fontFamily: 'PlusJakartaSans'),
 
-        home: MyApp()),
+        home: SplashScreen(nextScreen: MyApp(),)),
     ),
   //   MaterialApp(
   //     debugShowCheckedModeBanner: false,
