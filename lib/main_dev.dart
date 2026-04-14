@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
@@ -27,6 +28,10 @@ List<InheritedProvider> get devProviders {
   ];
 }
 
-void main() {
-  mainCommon(devProviders);
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefRepo = PreferencesRepository();
+  final onboardingDone = await prefRepo.isOnboardingDone();
+  mainCommon(devProviders,onboardingDone: onboardingDone);
 }
