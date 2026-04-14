@@ -25,6 +25,7 @@ class SearchBarVelo extends StatelessWidget {
           border: InputBorder.none,
           icon: Icon(Icons.search),
           hintText: "Search Station",
+          hintStyle: TextStyle(color: AppColor.textSecondary)
         ),
       ),
     );

@@ -13,5 +13,7 @@ class AppColor {
     255,
   ); // screen bg
   static const Color white = Colors.white;
+  static const Color red = Color.fromARGB(255, 164, 29, 19);
+
   static const Color transparent = Colors.transparent;
 }

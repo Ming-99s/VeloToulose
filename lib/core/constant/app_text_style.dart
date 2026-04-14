@@ -50,4 +50,11 @@ class AppTextStyle {
     color: AppColor.primary,
     letterSpacing: 1.2,
   );
+
+    static const TextStyle Error = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
+    color: AppColor.red,
+    letterSpacing: 1.2,
+  );
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/widgets/navbar.dart';
-import 'package:velo_toulose/features/map/view/map_screen.dart';
+import 'package:velo_toulose/features/map/map_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
-import 'package:velo_toulose/features/profile/view/profile_screen.dart';
+import 'package:velo_toulose/features/profile/profile_screen.dart';
 
 void mainCommon(List<InheritedProvider> providers) {
   runApp(
@@ -36,6 +36,13 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
+    final viewModel = context.read<MapViewModel>();
+
+    // Clear when leaving Map screen
+    if (_selectedIndex == 0) {
+      viewModel.clearSelectedStation();
+    }
+
     setState(() {
       _selectedIndex = index;
     });
@@ -57,7 +64,7 @@ class _MyAppState extends State<MyApp> {
               children: _page,
             ),
 
-if (viewModel.selectedStation != null)
+    if (viewModel.selectedStation != null)
             Positioned.fill(
               child: DraggableScrollableSheet(
                 initialChildSize: 0.4,
