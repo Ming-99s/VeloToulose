@@ -5,18 +5,19 @@ import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/payment/widgets/selected_bike_card.dart';
 import 'package:velo_toulose/features/payment/view/pass_selection_screen.dart';
 import 'package:velo_toulose/features/payment/view/booking_success_screen.dart';
+import 'package:velo_toulose/models/station.dart';
 
 enum PaymentMethodOption { payAsYouGo, selectPass }
 
 class PaymentMethodScreen extends StatefulWidget {
-  final String stationName;
+  final Station station;
   final String bikeType;
   final String bikeId;
   final String slotLabel;
 
   const PaymentMethodScreen({
     super.key,
-    required this.stationName,
+    required this.station,
     required this.bikeType,
     required this.bikeId,
     required this.slotLabel,
@@ -61,7 +62,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  widget.stationName,
+                  widget.station.name,
                   style: AppTextStyle.heading,
                 ),
               ),
@@ -138,7 +139,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                           builder: (_) => PassView(
                             bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
-                            stationName: widget.stationName,
+                            stationName: widget.station.name,
                           ),
                         ),
                       );
@@ -148,7 +149,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                           builder: (_) => BookingSuccessScreen(
                             bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
-                            stationName: widget.stationName,
+                            stationName: widget.station.name,
                           ),
                         ),
                       );

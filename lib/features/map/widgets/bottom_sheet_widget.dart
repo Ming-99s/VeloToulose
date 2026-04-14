@@ -4,6 +4,7 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/features/map/utils/distance_format.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bike_tile.dart';
+import 'package:velo_toulose/features/payment/view/payment_method_screen.dart';
 import 'package:velo_toulose/models/bike.dart';
 import 'package:velo_toulose/models/station.dart';
 
@@ -18,6 +19,19 @@ class BottomSheetWidget extends StatelessWidget {
   final Station station;
   final MapViewModel viewModel;
   final ScrollController scrollController;
+
+  void _toConfirmRide(BuildContext context,station,bike){
+      Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PaymentMethodScreen(
+                  station: station,  
+                  bikeType: bike.type,
+                  bikeId: bike.bikeId,
+                  slotLabel: bike.slotId ?? '-',
+                ),
+              ),
+              );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +149,7 @@ class BottomSheetWidget extends StatelessWidget {
               children: [
                 ...viewModel
                     .getBikesAt(station)
-                    .map((bike) => BikeTile(bike: bike, stationName: station.name))
+                    .map((bike) => BikeTile(bike: bike, stationName: station.name,onTap: ()=> _toConfirmRide(context,station,bike),))
                     .toList(),
 
                 if (viewModel.getBikesAt(station).isEmpty)
