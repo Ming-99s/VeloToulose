@@ -4,6 +4,7 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/payment/widgets/selected_bike_card.dart';
 import 'package:velo_toulose/features/payment/view/pass_selection_screen.dart';
+import 'package:velo_toulose/features/payment/view/booking_success_screen.dart';
 
 enum PaymentMethodOption { payAsYouGo, selectPass }
 
@@ -133,10 +134,24 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   onPressed: () {
                     if (_selected == PaymentMethodOption.selectPass) {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const PassView()),
+                        MaterialPageRoute(
+                          builder: (_) => PassView(
+                            bikeType: widget.bikeType,
+                            bikeId: widget.bikeId,
+                            stationName: widget.stationName,
+                          ),
+                        ),
                       );
                     } else {
-                      // TODO: navigate to ride confirmation screen
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => BookingSuccessScreen(
+                            bikeType: widget.bikeType,
+                            bikeId: widget.bikeId,
+                            stationName: widget.stationName,
+                          ),
+                        ),
+                      );
                     }
                   },
                 ),
