@@ -9,6 +9,7 @@ import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
 import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
 import 'package:velo_toulose/features/map/widgets/search_bar.dart';
+import 'package:velo_toulose/features/ride/view/ride_screen.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class MapContent extends StatefulWidget {
@@ -56,7 +57,6 @@ class _MapContentState extends State<MapContent> {
             interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
           ),
           children: [
-
             TileLayer(
               urlTemplate:
                   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -104,7 +104,7 @@ class _MapContentState extends State<MapContent> {
                   ),
                 ],
               ),
-              if (viewModel.stations.isNotEmpty)
+            if (viewModel.stations.isNotEmpty)
               MarkerLayer(
                 markers: viewModel.stations.map((station) {
                   return Marker(
@@ -113,7 +113,7 @@ class _MapContentState extends State<MapContent> {
                     height: 35,
                     child: GestureDetector(
                       onTap: () => viewModel.selectStation(station),
-                      child: BuildStationMarkerWidget(station: station,),
+                      child: BuildStationMarkerWidget(station: station),
                     ),
                   );
                 }).toList(),
@@ -141,7 +141,13 @@ class _MapContentState extends State<MapContent> {
                       ],
                     ),
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const RideSummaryScreen(),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.notifications),
                     ),
                   ),
@@ -154,6 +160,3 @@ class _MapContentState extends State<MapContent> {
     );
   }
 }
-
-
-
