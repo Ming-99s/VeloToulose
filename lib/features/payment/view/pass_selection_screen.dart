@@ -101,27 +101,26 @@ class _PassViewState extends State<PassView> {
                         badge: 'BEST VALUE',
                       ),
                       const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: AppButton(
-                  label: 'Continue',
-                  isprimaryColor: true,
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => BookingSuccessScreen(
-                          bikeType: widget.bikeType,
-                          bikeId: widget.bikeId,
-                          stationName: widget.stationName,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: AppButton(
+                          label: 'Continue',
+                          isprimaryColor: true,
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BookingSuccessScreen(
+                                  bikeType: widget.bikeType,
+                                  bikeId: widget.bikeId,
+                                  stationName: widget.stationName,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
               ),
             ],
