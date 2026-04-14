@@ -3,9 +3,19 @@ import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/payment/widgets/pass_cart.dart';
+import 'package:velo_toulose/features/payment/view/booking_success_screen.dart';
 
 class PassView extends StatefulWidget {
-  const PassView({super.key});
+  final String bikeType;
+  final String bikeId;
+  final String stationName;
+
+  const PassView({
+    super.key,
+    required this.bikeType,
+    required this.bikeId,
+    required this.stationName,
+  });
 
   @override
   State<PassView> createState() => _PassViewState();
@@ -91,19 +101,26 @@ class _PassViewState extends State<PassView> {
                         badge: 'BEST VALUE',
                       ),
                       const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: AppButton(
+                          label: 'Continue',
+                          isprimaryColor: true,
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BookingSuccessScreen(
+                                  bikeType: widget.bikeType,
+                                  bikeId: widget.bikeId,
+                                  stationName: widget.stationName,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: AppButton(
-                  label: 'Continue',
-                  isprimaryColor: true,
-                  onPressed: () {
-                    // TODO: navigate or call ViewModel later
-                  },
                 ),
               ),
             ],
