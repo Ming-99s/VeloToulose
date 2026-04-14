@@ -40,7 +40,7 @@ class SubscriptionMethodWidget extends StatelessWidget {
                     'MONTHLY PASS',
                     style: TextStyle(
                       color: AppColor.white,
-                      fontSize: 11,
+                      fontSize: 8,
                       letterSpacing: 1.2,
                       fontWeight: FontWeight.w800,
                     ),
@@ -50,7 +50,7 @@ class SubscriptionMethodWidget extends StatelessWidget {
                 const Text(
                   'Included in your pass',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: AppColor.primary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -60,12 +60,12 @@ class SubscriptionMethodWidget extends StatelessWidget {
             const SizedBox(height: 18),
             const Text(
               'First 30 minutes included.',
-              style: TextStyle(fontSize: 16, color: AppColor.textSecondary),
+              style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
             ),
             const Text(
               'No charge applied.',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 color: AppColor.textPrimary,
                 fontWeight: FontWeight.w700,
               ),

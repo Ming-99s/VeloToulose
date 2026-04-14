@@ -8,7 +8,7 @@ import 'package:velo_toulose/features/ride/widgets/subscription_method_widget.da
 class RideSummaryScreen extends StatelessWidget {
   final bool isMonthlyPass;
 
-  const RideSummaryScreen({super.key, this.isMonthlyPass = false});
+  const RideSummaryScreen({super.key, this.isMonthlyPass = true});
 
   @override
   Widget build(BuildContext context) {
