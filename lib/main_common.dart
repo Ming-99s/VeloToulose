@@ -5,24 +5,23 @@ import 'package:velo_toulose/core/widgets/navbar.dart';
 import 'package:velo_toulose/features/map/map_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
+import 'package:velo_toulose/features/onBoarding/view/on-boarding_screen.dart';
 import 'package:velo_toulose/features/profile/profile_screen.dart';
 import 'package:velo_toulose/features/splash/view/splash_screen.dart';
 
-void mainCommon(List<InheritedProvider> providers) {
+void mainCommon(List<InheritedProvider> providers,{required bool onboardingDone}) {
+
   runApp(
     MultiProvider(
       providers: providers,
       child: MaterialApp(
         debugShowCheckedModeBanner: false, 
-              theme: ThemeData(fontFamily: 'PlusJakartaSans'),
-
-        home: SplashScreen(nextScreen: MyApp(),)),
+        theme: ThemeData(fontFamily: 'PlusJakartaSans'),
+        home: onboardingDone ? 
+        SplashScreen(nextScreen: MyApp(),):
+        SplashScreen(nextScreen: OnBoardingScreen())
+        ),
     ),
-  //   MaterialApp(
-  //     debugShowCheckedModeBanner: false,
-  //     theme: ThemeData(fontFamily: 'PlusJakartaSans'),
-  //     home: MyApp(),
-  // )
   );
 }
 

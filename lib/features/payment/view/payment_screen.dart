@@ -100,6 +100,7 @@ class _PassViewState extends State<PassView> {
                 padding: const EdgeInsets.only(bottom: 24),
                 child: AppButton(
                   label: 'Continue',
+                  isprimaryColor: true,
                   onPressed: () {
                     // TODO: navigate or call ViewModel later
                   },
