@@ -1,5 +1,6 @@
 class User {
   final String userId;
+  final Uri image;
   final String firstName;
   final String lastName;
   final String email;
@@ -7,6 +8,7 @@ class User {
   final double balance;
 
   const User({
+    required this.image,
     required this.userId,
     required this.firstName,
     required this.lastName,
@@ -23,9 +25,11 @@ class User {
     String? lastName,
     String? email,
     String? phone,
+    Uri? image,
     double? balance,
   }) {
     return User(
+      image: image ?? this.image,
       userId: userId ?? this.userId,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
