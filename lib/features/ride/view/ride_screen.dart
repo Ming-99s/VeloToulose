@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
-import 'package:velo_toulose/features/ride/widgets/primary_button_widget.dart';
+import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/ride/widgets/ride_station_info_widget.dart';
 import 'package:velo_toulose/features/ride/widgets/ride_status_widget.dart';
 import 'package:velo_toulose/features/ride/widgets/subscription_method_widget.dart';
@@ -8,7 +8,7 @@ import 'package:velo_toulose/features/ride/widgets/subscription_method_widget.da
 class RideSummaryScreen extends StatelessWidget {
   final bool isMonthlyPass;
 
-  const RideSummaryScreen({super.key, this.isMonthlyPass = false});
+  const RideSummaryScreen({super.key, this.isMonthlyPass = true});
 
   @override
   Widget build(BuildContext context) {
@@ -37,18 +37,19 @@ class RideSummaryScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          child: Column(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+          child: ListView(
             children: [
               const RideStatusWidget(),
               const SizedBox(height: 24),
               const RideStationInfoWidget(),
               const SizedBox(height: 18),
               SubscriptionMethodWidget(isMonthlyPass: isMonthlyPass),
-              const Spacer(),
-              PrimaryButtonWidget(
+              SizedBox(height: 20,),
+              AppButton(
+                isprimaryColor: true,
                 label: 'Back to Map',
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           ),

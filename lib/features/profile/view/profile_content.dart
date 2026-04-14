@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/core/widgets/confirm_dialog.dart';
+import 'package:velo_toulose/features/auth/view/auth_screen.dart';
 import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
 import 'package:velo_toulose/features/profile/widgets/pay_as_you_go_card.dart';
 import 'package:velo_toulose/features/profile/widgets/tile_profile.dart';
+
 class ProfileContent extends StatelessWidget {
   const ProfileContent({super.key});
+
+  void _signOut(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => AuthScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +32,10 @@ class ProfileContent extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(width: 5, color: AppColor.background),
+                        border: Border.all(
+                          width: 5,
+                          color: AppColor.background,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             blurRadius: 4,
@@ -42,7 +55,7 @@ class ProfileContent extends StatelessWidget {
                         ),
                       ),
                     ),
-        
+
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -57,8 +70,8 @@ class ProfileContent extends StatelessWidget {
                                 blurRadius: 2,
                                 offset: Offset(0, 1),
                                 spreadRadius: 2,
-                              )
-                            ]
+                              ),
+                            ],
                           ),
                           child: CircleAvatar(
                             backgroundColor: AppColor.primary,
@@ -70,7 +83,7 @@ class ProfileContent extends StatelessWidget {
                   ],
                 ),
               ),
-        
+
               SizedBox(height: 15),
               Text('Pheng Lyming', style: AppTextStyle.heading),
               Text('Lyming4999@gmail.com', style: AppTextStyle.pricePeriod),
@@ -83,7 +96,6 @@ class ProfileContent extends StatelessWidget {
 
               Container(
                 decoration: BoxDecoration(
-                  
                   color: AppColor.background,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
@@ -91,33 +103,46 @@ class ProfileContent extends StatelessWidget {
                       color: const Color.fromARGB(29, 107, 114, 128),
                       blurRadius: 2,
                       offset: Offset(0, 1),
-                      spreadRadius: 2
-                    )
-                  ]
-                ),
-                child: Column(
-                  children: [
-                    TileProfile(),
-                    TileProfile()
+                      spreadRadius: 2,
+                    ),
                   ],
                 ),
-
-                
+                child: Column(children: [TileProfile(), TileProfile()]),
               ),
               SizedBox(height: 30),
               GestureDetector(
-                onTap: () => {},
+                onTap: (){ showDialog(
+                  context: context,
+                  builder: (BuildContext context){
+
+                  return ConfirmDialog(
+                    title: 'Sign out',
+                    message: 'Sign out of your account?',
+                    confirmLabel: 'Sign out',
+                    cancelLabel: 'cancel ',
+                    isDanger: true,
+                    onTap: () => _signOut(context),
+                  );
+                  
+                  }
+
+                );
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.logout,color: AppColor.red,),
-                    SizedBox(width: 10,),
-                    Text('Sigout',style: TextStyle(color: AppColor.red,fontWeight: FontWeight.w700),)
+                    Icon(Icons.logout, color: AppColor.red),
+                    SizedBox(width: 10),
+                    Text(
+                      'Sign out',
+                      style: TextStyle(
+                        color: AppColor.red,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
-              )
-
-
+              ),
             ],
           ),
         ),

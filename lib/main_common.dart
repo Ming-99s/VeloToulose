@@ -36,12 +36,6 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    final viewModel = context.read<MapViewModel>();
-
-    // Clear when leaving Map screen
-    if (_selectedIndex == 0) {
-      viewModel.clearSelectedStation();
-    }
 
     setState(() {
       _selectedIndex = index;
@@ -64,33 +58,38 @@ class _MyAppState extends State<MyApp> {
               children: _page,
             ),
 
-    if (viewModel.selectedStation != null)
+         if (viewModel.selectedStation != null)
             Positioned.fill(
-              child: DraggableScrollableSheet(
-                initialChildSize: 0.4,
-                minChildSize: 0.0, 
-                maxChildSize: 0.8, 
-                snap: true, 
-                snapSizes: const [0.0, 0.4, 0.8], 
-                builder: (context, scrollController) {
-                  return NotificationListener<DraggableScrollableNotification>(
-                    onNotification: (notification) {
-                      if (notification.extent < 0.05) {
-                        viewModel.clearSelectedStation();
-                      }
-                      return true;
-                    },
-                    child: BottomSheetWidget(
-                      station: viewModel.selectedStation!,
-                      viewModel: viewModel,
-                      scrollController: scrollController,
-                    ),
-                  );
-                },
+              child: Visibility(
+                visible: _selectedIndex == 0,
+                maintainState: true,
+                child: DraggableScrollableSheet(
+                  initialChildSize: 0.4,
+                  minChildSize: 0.0,
+                  maxChildSize: 0.8,
+                  snap: true,
+                  snapSizes: const [0.0, 0.4, 0.8],
+                  builder: (context, scrollController) {
+                    return NotificationListener<
+                      DraggableScrollableNotification
+                    >(
+                      onNotification: (notification) {
+                        if (notification.extent < 0.05) {
+                          viewModel.clearSelectedStation();
+                        }
+                        return true;
+                      },
+                      child: BottomSheetWidget(
+                        station: viewModel.selectedStation!,
+                        viewModel: viewModel,
+                        scrollController: scrollController,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             Positioned(
-              
               bottom: 0,
               left: 0,
               right: 0,

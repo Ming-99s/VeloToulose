@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
+import 'package:velo_toulose/core/constant/app_text_style.dart';
 
 class RideStatusWidget extends StatelessWidget {
   const RideStatusWidget({super.key});
@@ -7,28 +8,22 @@ class RideStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: const Column(
+      child: Column(
         children: [
           _StatusIcon(),
           SizedBox(height: 20),
           Text(
             'Ride Completed Successfully',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 32,
-              height: 1.2,
-              fontWeight: FontWeight.w800,
-              color: AppColor.textPrimary,
-            ),
+            style: AppTextStyle.heading
           ),
           SizedBox(height: 10),
-          Text(
-            'Your bike has been safely locked at the docking station.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.4,
-              color: AppColor.textSecondary,
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'Your bike has been safely locked at the docking station.',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.subheading
             ),
           ),
         ],
@@ -54,7 +49,7 @@ class _StatusIcon extends StatelessWidget {
         width: 52,
         height: 52,
         decoration: const BoxDecoration(
-          color: Color(0xFF0FA06A),
+          color: Color.fromARGB(255, 12, 165, 78),
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.check_rounded, color: AppColor.white, size: 34),

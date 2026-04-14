@@ -5,10 +5,11 @@ import 'package:velo_toulose/features/payment/view/payment_method_screen.dart';
 import 'package:velo_toulose/models/bike.dart';
 
 class BikeTile extends StatelessWidget {
-  const BikeTile({super.key, required this.bike, required this.stationName});
+  const BikeTile({super.key, required this.bike, required this.stationName,required this.onTap});
 
   final Bike bike;
   final String stationName;
+  final Function() onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -31,45 +32,43 @@ class BikeTile extends StatelessWidget {
                 height: 50,
                 decoration: BoxDecoration(
                   color: AppColor.background,
-              
+
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
                     color: const Color.fromARGB(255, 250, 208, 184),
                   ),
                 ),
-                child: Icon(Icons.pedal_bike, size: 30, color: AppColor.primary),
+                child: Icon(
+                  Icons.pedal_bike,
+                  size: 30,
+                  color: AppColor.primary,
+                ),
               ),
-                        SizedBox(width: 10),
+              SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text( '# ${bike.bikeId}',style: AppTextStyle.cardTitle,),
-                  Text('#${bike.slotId!} • ${bike.type}',style: AppTextStyle.pricePeriod,),
+                  Text('# ${bike.bikeId}', style: AppTextStyle.cardTitle),
+                  Text(
+                    '#${bike.slotId!} • ${bike.type}',
+                    style: AppTextStyle.pricePeriod,
+                  ),
                 ],
               ),
             ],
           ),
 
-
-
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
-              color: AppColor.primary
+              color: AppColor.primary,
             ),
-            child: TextButton(onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => PaymentMethodScreen(
-                    stationName: stationName,
-                    bikeType: bike.type,
-                    bikeId: bike.bikeId,
-                    slotLabel: bike.slotId ?? '-',
-                  ),
-                ),
-              );
-            }, child: Text('Select',style: AppTextStyle.buttonText,))),
+            child: TextButton(
+              onPressed: onTap,
+              child: Text('Select', style: AppTextStyle.buttonText),
+            ),
+          ),
         ],
       ),
     );
