@@ -41,43 +41,63 @@ class SubscriptionMethodWidget extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _MonthlyPassContent extends StatelessWidget {
-  const _MonthlyPassContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColor.primary,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Text(
-                'MONTHLY PASS',
-                style: TextStyle(
-                  color: AppColor.white,
-                  fontSize: 11,
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w800,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isMonthlyPass) ...[
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColor.primary,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    'MONTHLY PASS',
+                    style: TextStyle(
+                      color: AppColor.white,
+                      fontSize: 8,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
+                const Spacer(),
+                const Text(
+                  'Included in your pass',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColor.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'First 30 minutes included.',
+              style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
+            ),
+            const Text(
+              'No charge applied.',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColor.textPrimary,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const Spacer(),
             const Text(
               'Included in your pass',
               style: TextStyle(
-                fontSize: 14,
-                color: AppColor.primary,
-                fontWeight: FontWeight.w600,
+                fontSize: 10,
+                letterSpacing: 3,
+                color: Color(0xFF67606A),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -167,7 +187,7 @@ class _CostLine extends StatelessWidget {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   height: 1.25,
                   color: AppColor.textPrimary,
                   fontWeight: FontWeight.w600,
@@ -177,7 +197,7 @@ class _CostLine extends StatelessWidget {
             Text(
               price,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 15,
                 color: priceColor ?? AppColor.textPrimary,
                 fontWeight: FontWeight.w700,
               ),
@@ -208,7 +228,7 @@ class _TotalRow extends StatelessWidget {
           child: Text(
             'Total',
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 16,
               color: AppColor.textPrimary,
               fontWeight: FontWeight.w700,
             ),
@@ -217,7 +237,7 @@ class _TotalRow extends StatelessWidget {
         Text(
           amount,
           style: TextStyle(
-            fontSize: 36,
+            fontSize: 20,
             color: amountColor,
             fontWeight: FontWeight.w800,
           ),

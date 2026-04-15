@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/core/constant/app_text_style.dart';
 
 class RideStationInfoWidget extends StatelessWidget {
   const RideStationInfoWidget({super.key});
@@ -54,11 +55,7 @@ class _InfoLine extends StatelessWidget {
         ),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 22,
-            color: Color(0xFF1A1A1A),
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyle.cardTitle
         ),
       ],
     );
