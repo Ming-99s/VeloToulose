@@ -13,7 +13,7 @@ class ProfileContent extends StatelessWidget {
   void _signOut(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => AuthScreen()),
+      MaterialPageRoute(builder: (_) => AuthScreen(mode:AuthMode.login ,)),
     );
   }
 
