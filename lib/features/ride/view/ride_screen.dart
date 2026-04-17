@@ -45,7 +45,7 @@ class RideSummaryScreen extends StatelessWidget {
               const RideStationInfoWidget(),
               const SizedBox(height: 18),
               SubscriptionMethodWidget(isMonthlyPass: isMonthlyPass),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               AppButton(
                 isprimaryColor: true,
                 label: 'Back to Map',
