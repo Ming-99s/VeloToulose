@@ -5,15 +5,9 @@ import 'package:velo_toulose/features/ride/widgets/ride_station_info_widget.dart
 import 'package:velo_toulose/features/ride/widgets/ride_status_widget.dart';
 import 'package:velo_toulose/features/ride/widgets/subscription_method_widget.dart';
 
-class RideSummaryScreen extends StatefulWidget {
-  const RideSummaryScreen({super.key});
+class RideSummaryScreen extends StatelessWidget {
+  final bool isMonthlyPass;
 
-  @override
-  State<RideSummaryScreen> createState() => _RideSummaryScreenState();
-}
-
-class _RideSummaryScreenState extends State<RideSummaryScreen> {
-  bool isMonthlyPass = false;
   const RideSummaryScreen({super.key, this.isMonthlyPass = true});
 
   @override
@@ -42,40 +36,6 @@ class _RideSummaryScreenState extends State<RideSummaryScreen> {
         ),
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
-                          const RideStatusWidget(),
-                          const SizedBox(height: 24),
-                          const RideStationInfoWidget(),
-                          const SizedBox(height: 18),
-                          SubscriptionMethodWidget(
-                            isMonthlyPass: isMonthlyPass,
-                            onTap: () {
-                              setState(() {
-                                isMonthlyPass = !isMonthlyPass;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      PrimaryButtonWidget(
-                        label: 'Back to Map',
-                        onPressed: () => Navigator.of(context).maybePop(),
-                      ),
-                    ],
-                  ),
-                ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: ListView(
@@ -85,14 +45,14 @@ class _RideSummaryScreenState extends State<RideSummaryScreen> {
               const RideStationInfoWidget(),
               const SizedBox(height: 18),
               SubscriptionMethodWidget(isMonthlyPass: isMonthlyPass),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               AppButton(
                 isprimaryColor: true,
                 label: 'Back to Map',
                 onPressed: () => Navigator.of(context).pop(),
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );
