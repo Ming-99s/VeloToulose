@@ -4,9 +4,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:velo_toulose/models/bike.dart';
 import 'package:velo_toulose/models/station.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
-import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
 
 class MapViewModel extends ChangeNotifier {
+  MapViewModel(this.stationRepostiory);
+
+  final StationRepostiory stationRepostiory;
   LatLng? userLocation;
   bool isLoading = false;
   Station? selectedStation;
@@ -27,15 +29,14 @@ class MapViewModel extends ChangeNotifier {
 
   // Phnom Penh as fallback if location fails
   static const LatLng fallback = LatLng(11.5564, 104.9282);
-  final StationRepostiory _stationRepo = StationRepositoryMock();
 
   Future<void> loadStations() async {
-    stations = await _stationRepo.loadStations();
+    stations = await stationRepostiory.loadStations();
     notifyListeners();
   }
 
   Future<void> loadBikesByStation(String stationid) async {
-    bikes = await _stationRepo.loadBikesByStation(stationid);
+    bikes = await stationRepostiory.loadBikesByStation(stationid);
     notifyListeners();
   }
 

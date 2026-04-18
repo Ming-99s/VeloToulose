@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/confirm_dialog.dart';
 import 'package:velo_toulose/features/auth/view/auth_screen.dart';
-import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/profile/widgets/pay_as_you_go_card.dart';
 import 'package:velo_toulose/features/profile/widgets/tile_profile.dart';
 
 class ProfileContent extends StatelessWidget {
   const ProfileContent({super.key});
 
-  void _signOut(BuildContext context) {
-    Navigator.pushReplacement(
+  void _signOutOrLogin(BuildContext context) {
+    context.read<AuthViewModel>().signOut();
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AuthScreen(mode:AuthMode.login ,)),
+      MaterialPageRoute(builder: (_) => AuthScreen(mode: AuthMode.login)),
     );
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<AuthViewModel>();
+
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -48,14 +54,22 @@ class ProfileContent extends StatelessWidget {
                       child: CircleAvatar(
                         radius: 60,
                         backgroundColor: AppColor.textSecondary,
-                        child: Icon(
-                          Icons.person,
-                          color: AppColor.background,
-                          size: 50,
-                        ),
+                        backgroundImage:
+                            (vm.currentUser?.image != null &&
+                                vm.currentUser!.image.toString().isNotEmpty)
+                            ? NetworkImage(vm.currentUser!.image.toString())
+                            : null,
+                        child:
+                            (vm.currentUser?.image == null ||
+                                vm.currentUser!.image.toString().isEmpty)
+                            ? Icon(
+                                Icons.person,
+                                color: AppColor.background,
+                                size: 50,
+                              )
+                            : null,
                       ),
                     ),
-
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -73,10 +87,10 @@ class ProfileContent extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: CircleAvatar(
+                          child: vm.isLoggedIn ? CircleAvatar(
                             backgroundColor: AppColor.primary,
                             child: Icon(Icons.edit, color: AppColor.background),
-                          ),
+                          ): SizedBox.shrink()
                         ),
                       ),
                     ),
@@ -84,15 +98,20 @@ class ProfileContent extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 15),
-              Text('Pheng Lyming', style: AppTextStyle.heading),
-              Text('Lyming4999@gmail.com', style: AppTextStyle.pricePeriod),
+              SizedBox(height: 10,),
+              // real name and email from AuthViewModel
+              Text(
+                vm.isLoggedIn ? vm.currentUser!.fullName : 'Welcome',
+                style: AppTextStyle.heading,
+              ),
+              Text(
+                vm.isLoggedIn ? vm.currentUser!.email : '',
+                style: AppTextStyle.pricePeriod,
+              ),
 
-              SizedBox(height: 30),
-
-              PayAsYouGoCard(),
-
-              SizedBox(height: 30),
+              vm.isLoggedIn ?   SizedBox(height: 30) : SizedBox.shrink(),
+              vm.isLoggedIn ? PayAsYouGoCard() : SizedBox.shrink(),
+              vm.isLoggedIn ?  SizedBox(height: 30) : SizedBox.shrink(),
 
               Container(
                 decoration: BoxDecoration(
@@ -107,37 +126,49 @@ class ProfileContent extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Column(children: [TileProfile(), TileProfile()]),
+                child: vm.isLoggedIn
+                    ? Column(
+                        children: [
+                          TileProfile(
+                            label: 'Notification',
+                            icon: Icons.notifications,
+                            onTap: () => {},
+                          ),
+                        ],
+                      )
+                    : SizedBox.shrink(),
               ),
-              SizedBox(height: 30),
+
+              vm.isLoggedIn ?  SizedBox(height: 30) : SizedBox.shrink(),
               GestureDetector(
-                onTap: (){ showDialog(
-                  context: context,
-                  builder: (BuildContext context){
-
-                  return ConfirmDialog(
-                    title: 'Sign out',
-                    message: 'Sign out of your account?',
-                    confirmLabel: 'Sign out',
-                    cancelLabel: 'cancel ',
-                    isDanger: true,
-                    onTap: () => _signOut(context),
-                  );
-                  
-                  }
-
-                );
+                onTap: () {
+                  vm.isLoggedIn
+                      ? showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ConfirmDialog(
+                              title: 'Sign out',
+                              message: 'Sign out of your account?',
+                              confirmLabel: 'Sign out',
+                              cancelLabel: 'cancel',
+                              isDanger: true,
+                              onTap: () => _signOutOrLogin(context),
+                            );
+                          },
+                        )
+                      :  _signOutOrLogin(context);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.logout, color: AppColor.red),
+                    vm.isLoggedIn ?  Icon(Icons.logout, color: AppColor.red) :  Icon(Icons.login, color: AppColor.primary),
                     SizedBox(width: 10),
                     Text(
-                      'Sign out',
+                      vm.isLoggedIn ?  'Sign out' : 'Login',
                       style: TextStyle(
-                        color: AppColor.red,
+                        color: vm.isLoggedIn ?  AppColor.red : AppColor.primary,
                         fontWeight: FontWeight.w700,
+                        fontSize: 15
                       ),
                     ),
                   ],

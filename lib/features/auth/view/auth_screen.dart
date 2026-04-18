@@ -1,22 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/auth/widgets/buildSwitch.dart';
+import 'package:velo_toulose/main_common.dart';
 
 enum AuthMode { login, register }
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
   final AuthMode mode;
 
   const AuthScreen({super.key, required this.mode});
 
-  bool get isLogin => mode == AuthMode.login;
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  late AuthMode _mode;
+
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = widget.mode;
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  bool get isLogin => _mode == AuthMode.login;
+
+  void _switchMode() {
+    setState(() {
+      _mode = isLogin ? AuthMode.register : AuthMode.login;
+    });
+    context.read<AuthViewModel>().clearError();
+  }
+
+  Future<void> _submit() async {
+    final viewModel = context.read<AuthViewModel>();
+    bool success = false;
+
+    if (isLogin) {
+      success = await viewModel.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+    } else {
+      success = await viewModel.register(
+        _firstNameController.text.trim(),
+        _lastNameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+    }
+
+    if (success && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => MyApp()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<AuthViewModel>();
+
     return Scaffold(
       backgroundColor: AppColor.primary,
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: AppColor.background),
+        backgroundColor: AppColor.transparent,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,8 +123,8 @@ class AuthScreen extends StatelessWidget {
                 Positioned(
                   top: -120,
                   right: -40,
-                  child: Lottie.asset('assets/stickers/girl.json'),
                   width: 300,
+                  child: Lottie.asset('assets/stickers/girl.json'),
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -72,14 +141,41 @@ class AuthScreen extends StatelessWidget {
 
                         SizedBox(height: 10),
 
-                        Buildswitch(isLogin: isLogin),
+                        // error message
+                        if (viewModel.error != null)
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              viewModel.error!,
+                              style: TextStyle(
+                                color: AppColor.red,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+
+                        SizedBox(height: 10),
+
+                        Buildswitch(isLogin: isLogin, onSwitch: _switchMode),
 
                         SizedBox(height: 10),
 
                         AppButton(
-                          label: isLogin ? 'Login' : 'Register',
+                          label: viewModel.isLoading
+                              ? 'Please wait...'
+                              : isLogin
+                              ? 'Login'
+                              : 'Register',
                           isprimaryColor: true,
-                          onPressed: () {},
+                          onPressed: viewModel.isLoading ? () {} : _submit,
                         ),
                       ],
                     ),
@@ -112,14 +208,25 @@ class AuthScreen extends StatelessWidget {
         children: [
           if (!isLogin) ...[
             TextField(
+              controller: _firstNameController,
               decoration: InputDecoration(
-                hintText: 'Username',
+                hintText: 'First Name',
+                border: InputBorder.none,
+              ),
+            ),
+            Divider(),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(
+                hintText: 'Last Name',
                 border: InputBorder.none,
               ),
             ),
             Divider(),
           ],
           TextField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               hintText: 'Email',
               border: InputBorder.none,
@@ -127,6 +234,8 @@ class AuthScreen extends StatelessWidget {
           ),
           Divider(),
           TextField(
+            controller: _passwordController,
+            obscureText: true,
             decoration: InputDecoration(
               hintText: 'Password',
               border: InputBorder.none,
