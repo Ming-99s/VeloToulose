@@ -37,20 +37,12 @@ class SubscriptionMethodWidget extends StatelessWidget {
                     color: AppColor.primary,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Text(
-                    'MONTHLY PASS',
-                    style: TextStyle(
-                      color: AppColor.white,
-                      fontSize: 8,
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  child: const Text('MONTHLY PASS', style: AppTextStyle.label),
                 ),
                 const Spacer(),
-                const Text(
+                Text(
                   'Included in your pass',
-                  style: TextStyle(
+                  style: AppTextStyle.subheading.copyWith(
                     fontSize: 12,
                     color: AppColor.primary,
                     fontWeight: FontWeight.w600,
@@ -59,29 +51,31 @@ class SubscriptionMethodWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'First 30 minutes included.',
-              style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
+              style: AppTextStyle.feature.copyWith(fontSize: 13),
             ),
-            const Text(
+            Text(
               'No charge applied.',
-              style: TextStyle(
+              style: AppTextStyle.cardTitle.copyWith(
                 fontSize: 16,
-                color: AppColor.textPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 18),
-            const Divider(color: Color(0xFFD9D9D9), thickness: 1),
+            const Divider(color: AppColor.border, thickness: 1),
             const SizedBox(height: 14),
-            const _TotalRow(amount: '\$0.00', amountColor: Color(0xFFA3A8B2)),
+            const _TotalRow(
+              amount: '\$0.00',
+              amountColor: AppColor.textSecondary,
+            ),
           ] else ...[
-            const Text(
+            Text(
               'COST BREAKDOWN',
-              style: TextStyle(
+              style: AppTextStyle.label.copyWith(
                 fontSize: 10,
                 letterSpacing: 3,
-                color: Color(0xFF67606A),
+                color: AppColor.textSecondary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -89,7 +83,7 @@ class SubscriptionMethodWidget extends StatelessWidget {
             const _CostLine(
               label: 'First 30 minutes',
               price: 'Free',
-              priceColor: Color(0xFF0FA06A),
+              priceColor: AppColor.primary,
               note: 'Base fare included',
             ),
             const SizedBox(height: 18),
@@ -99,7 +93,7 @@ class SubscriptionMethodWidget extends StatelessWidget {
               note: '\$0.05/min',
             ),
             const SizedBox(height: 18),
-            const Divider(color: Color(0xFFD9D9D9), thickness: 1),
+            const Divider(color: AppColor.border, thickness: 1),
             const SizedBox(height: 14),
             const _TotalRow(amount: '\$0.60', amountColor: AppColor.primary),
           ],
@@ -132,17 +126,16 @@ class _CostLine extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: AppTextStyle.cardTitle.copyWith(
                   fontSize: 15,
                   height: 1.25,
-                  color: AppColor.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             Text(
               price,
-              style: TextStyle(
+              style: AppTextStyle.cardTitle.copyWith(
                 fontSize: 15,
                 color: priceColor ?? AppColor.textPrimary,
                 fontWeight: FontWeight.w700,
@@ -151,10 +144,7 @@ class _CostLine extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 2),
-        Text(
-          note,
-          style: const TextStyle(fontSize: 14, color: AppColor.textSecondary),
-        ),
+        Text(note, style: AppTextStyle.subheading.copyWith(fontSize: 14)),
       ],
     );
   }
@@ -170,19 +160,10 @@ class _TotalRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
-          child: Text(
-            'Total',
-            style: TextStyle(
-              fontSize: 16,
-              color: AppColor.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        const Expanded(child: Text('Total', style: AppTextStyle.cardTitle)),
         Text(
           amount,
-          style: TextStyle(
+          style: AppTextStyle.priceTag.copyWith(
             fontSize: 20,
             color: amountColor,
             fontWeight: FontWeight.w800,
