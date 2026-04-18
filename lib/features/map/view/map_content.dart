@@ -144,7 +144,8 @@ class _MapContentState extends State<MapContent> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const RideActiveScreen(),
+                            builder: (_) =>
+                                const RideActiveScreen(startTimer: false),
                           ),
                         );
                       },

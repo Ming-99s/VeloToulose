@@ -104,7 +104,8 @@ class BookingSuccessScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: (_) => const RideActiveScreen(),
+                        builder: (_) =>
+                            const RideActiveScreen(startTimer: true),
                       ),
                       (route) => route.isFirst,
                     );
