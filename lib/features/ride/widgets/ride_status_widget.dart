@@ -10,20 +10,20 @@ class RideStatusWidget extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          _StatusIcon(),
-          SizedBox(height: 20),
+          const _StatusIcon(),
+          const SizedBox(height: 20),
           Text(
             'Ride Completed Successfully',
             textAlign: TextAlign.center,
-            style: AppTextStyle.heading
+            style: AppTextStyle.heading,
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
               'Your bike has been safely locked at the docking station.',
               textAlign: TextAlign.center,
-              style: AppTextStyle.subheading
+              style: AppTextStyle.subheading,
             ),
           ),
         ],
@@ -41,7 +41,7 @@ class _StatusIcon extends StatelessWidget {
       width: 96,
       height: 96,
       decoration: const BoxDecoration(
-        color: Color(0xFFDDF5E9),
+        color: AppColor.primaryLight,
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
@@ -49,7 +49,7 @@ class _StatusIcon extends StatelessWidget {
         width: 52,
         height: 52,
         decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 12, 165, 78),
+          color: AppColor.primary,
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.check_rounded, color: AppColor.white, size: 34),

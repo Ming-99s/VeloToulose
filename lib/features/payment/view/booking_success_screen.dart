@@ -3,6 +3,7 @@ import 'package:lottie/lottie.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
+import 'package:velo_toulose/features/ride/view/ride_active_screen.dart';
 
 class BookingSuccessScreen extends StatelessWidget {
   final String bikeType;
@@ -101,7 +102,12 @@ class BookingSuccessScreen extends StatelessWidget {
                   isprimaryColor: true,
                   trailingIcon: Icons.pedal_bike,
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (_) => const RideActiveScreen(),
+                      ),
+                      (route) => route.isFirst,
+                    );
                   },
                 ),
               ),
