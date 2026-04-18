@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
+import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/ride/widgets/ride_station_info_widget.dart';
 import 'package:velo_toulose/features/ride/widgets/ride_status_widget.dart';
@@ -26,13 +27,9 @@ class RideSummaryScreen extends StatelessWidget {
             size: 20,
           ),
         ),
-        title: const Text(
+        title: Text(
           'Ride Summary',
-          style: TextStyle(
-            color: AppColor.textPrimary,
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTextStyle.heading.copyWith(fontSize: 22),
         ),
       ),
       body: SafeArea(
