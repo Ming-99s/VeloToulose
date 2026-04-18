@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
-import 'package:velo_toulose/features/auth/view/auth_screen.dart';
 
 class Buildswitch extends StatelessWidget {
-  const Buildswitch({super.key,required this.isLogin});
+  const Buildswitch({super.key, required this.isLogin,required this.onSwitch});
   final bool isLogin;
+  final Function() onSwitch;
 
   @override
   Widget build(BuildContext context) {
-  return Container(
-    padding: EdgeInsets.symmetric(vertical: 10),
-    child: Row(
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10),
+      child: Row(
         children: [
           Expanded(child: Divider()),
           Padding(
@@ -21,16 +21,7 @@ class Buildswitch extends StatelessWidget {
                   isLogin ? "Don't have account?" : "Already have an account?",
                 ),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => AuthScreen(
-                          mode: isLogin ? AuthMode.register : AuthMode.login,
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: onSwitch,
                   child: Padding(
                     padding: EdgeInsets.only(left: 5),
                     child: Text(
@@ -38,7 +29,7 @@ class Buildswitch extends StatelessWidget {
                       style: TextStyle(
                         color: AppColor.primary,
                         decoration: TextDecoration.underline,
-                        decorationColor: AppColor.primary
+                        decorationColor: AppColor.primary,
                       ),
                     ),
                   ),
@@ -49,6 +40,6 @@ class Buildswitch extends StatelessWidget {
           Expanded(child: Divider()),
         ],
       ),
-  );
+    );
   }
 }
