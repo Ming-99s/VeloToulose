@@ -5,7 +5,9 @@ import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 
 class TimerSection extends StatefulWidget {
-  const TimerSection({super.key});
+  final bool autoStart;
+
+  const TimerSection({super.key, this.autoStart = false});
 
   @override
   State<TimerSection> createState() => _TimerSectionState();
@@ -18,7 +20,10 @@ class _TimerSectionState extends State<TimerSection> {
   @override
   void initState() {
     super.initState();
-    _stopwatch = Stopwatch()..start();
+    _stopwatch = Stopwatch();
+    if (widget.autoStart) {
+      _stopwatch.start();
+    }
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         setState(() {});
@@ -60,7 +65,10 @@ class _TimerSectionState extends State<TimerSection> {
             ),
           ),
           const SizedBox(height: 8),
-          Text('Ride in progress', style: AppTextStyle.subheading),
+          Text(
+            widget.autoStart ? 'Ride in progress' : 'Ride not started yet',
+            style: AppTextStyle.subheading,
+          ),
         ],
       ),
     );
