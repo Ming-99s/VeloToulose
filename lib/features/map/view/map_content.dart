@@ -9,7 +9,7 @@ import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
 import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
 import 'package:velo_toulose/features/map/widgets/search_bar.dart';
-import 'package:velo_toulose/features/ride/view/ride_screen.dart';
+import 'package:velo_toulose/features/ride/view/ride_active_screen.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class MapContent extends StatefulWidget {
@@ -144,7 +144,7 @@ class _MapContentState extends State<MapContent> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const RideSummaryScreen(),
+                            builder: (_) => const RideActiveScreen(),
                           ),
                         );
                       },
