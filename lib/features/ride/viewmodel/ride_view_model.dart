@@ -15,16 +15,13 @@ class RideViewModel extends ChangeNotifier {
 
   bool get hasActiveRide => activeRide != null;
 
-  // formatted timer string e.g. "12 : 30"
+  // formatted timer string e.g. "00 : 12"
   String get timerLabel {
     if (activeRide == null) return '00 : 00';
-    final mins = activeRide!.duration;
-    final hours = mins ~/ 60;
-    final remaining = mins % 60;
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')} : ${remaining.toString().padLeft(2, '0')} h';
-    }
-    return '${mins.toString().padLeft(2, '0')} : 00 mn';
+    final secs = activeRide!.duration;
+    final mins = secs ~/ 60;
+    final remaining = secs % 60;
+    return '${mins.toString().padLeft(2, '0')} : ${remaining.toString().padLeft(2, '0')}';
   }
 
   // called when user confirms booking
@@ -52,18 +49,27 @@ class RideViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> endRide(String endStationId) async {
-    if (activeRide == null) return;
+  /// Ends the current ride and returns the completed Ride with cost info.
+  /// Returns null if there was no active ride or an error occurred.
+  Future<Ride?> endRide(String endStationId) async {
+    if (activeRide == null) return null;
 
     isLoading = true;
     notifyListeners();
 
     try {
-      await _repository.endRide(activeRide!.rideId, endStationId);
+      final endedRide = await _repository.endRide(
+        activeRide!.rideId,
+        endStationId,
+      );
       activeRide = null;
       _stopTimer();
+      notifyListeners();
+      return endedRide; // caller can use this to create a receipt
     } catch (e) {
       error = e.toString();
+      notifyListeners();
+      return null;
     } finally {
       isLoading = false;
       notifyListeners();
@@ -79,8 +85,8 @@ class RideViewModel extends ChangeNotifier {
 
   void _startTimer() {
     _timer?.cancel();
-    // update every minute
-    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+    // update every second for demo
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       notifyListeners(); // triggers timerLabel to recompute
     });
   }

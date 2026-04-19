@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
 
 class PayAsYouGoCard extends StatelessWidget {
   const PayAsYouGoCard({super.key});
@@ -78,7 +79,14 @@ class PayAsYouGoCard extends StatelessWidget {
                 )
               ]
             ),
-            child: Text('Get a Pass',style: AppTextStyle.buttonText,),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PassView()),
+                );
+              },
+              child: Text('Get a Pass', style: AppTextStyle.buttonText),
+            ),
           )
 
         ],

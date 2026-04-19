@@ -6,18 +6,20 @@ import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
 import 'package:velo_toulose/features/booking/widgets/pass_cart.dart';
 import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class PassView extends StatelessWidget {
-  final String bikeType;
-  final String bikeId;
-  final Station station;
+  final String? bikeType;
+  final String? bikeId;
+  final Station? station;
 
   const PassView({
     super.key,
-    required this.bikeType,
-    required this.bikeId,
-    required this.station,
+    this.bikeType,
+    this.bikeId,
+    this.station,
   });
 
   @override
@@ -90,16 +92,29 @@ class PassView extends StatelessWidget {
                             label: 'Continue',
                             isprimaryColor: true,
                             onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => BookingSuccessScreen(
-                                    bikeType: bikeType,
-                                    bikeId: bikeId,
-                                    stationName: station.name,
-                                    stationId: station.stationId,
+                              viewModel.activatePass();
+
+                              // Send a notification for the pass purchase
+                              final pass = viewModel.activePass;
+                              if (pass != null) {
+                                final userId = context.read<AuthViewModel>().currentUser?.userId ?? 'guest';
+                                context.read<NotificationViewModel>().addPassPurchase(pass, userId);
+                              }
+
+                              if (bikeType != null && bikeId != null && station != null) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => BookingSuccessScreen(
+                                      bikeType: bikeType!,
+                                      bikeId: bikeId!,
+                                      stationName: station!.name,
+                                      stationId: station!.stationId,
+                                    ),
                                   ),
-                                ),
-                              );
+                                );
+                              } else {
+                                Navigator.of(context).pop();
+                              }
                             },
                           ),
                         ),
