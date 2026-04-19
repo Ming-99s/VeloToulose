@@ -36,7 +36,6 @@ class BottomSheetWidget extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => PaymentMethodScreen(
           station: station,
-          bikeType: bike.type,
           bikeId: bike.bikeId,
           slotLabel: bike.slotId ?? '-',
         ),
@@ -199,7 +198,7 @@ class BottomSheetWidget extends StatelessWidget {
                     .map(
                       (bike) => BikeTile(
                         bike: bike,
-                        stationName: station.name,
+                        station: station,
                         onTap: () => _toConfirmRide(context, station, bike),
                       ),
                     )

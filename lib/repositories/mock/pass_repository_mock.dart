@@ -13,7 +13,7 @@ class PassRepositoryMock implements  PassRepository{
     return [
       Pass(
         passId: 'pass_001',
-        type: PassType.daily,
+        type: PassType.day,
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(hours: 24)),
         price: 2,
@@ -21,7 +21,7 @@ class PassRepositoryMock implements  PassRepository{
       ),
       Pass(
         passId: 'pass_002',
-        type: PassType.weekly,
+        type: PassType.annual,
         startDate: DateTime.now(),
         endDate: DateTime.now().add(const Duration(days: 30)),
         price: 29,

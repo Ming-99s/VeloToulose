@@ -1,3 +1,5 @@
+import 'package:velo_toulose/core/enum/pass_type.dart';
+import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/user.dart';
 import 'package:velo_toulose/repositories/abstract/user_repository.dart';
 
@@ -5,6 +7,9 @@ class UserRepositoryMock implements UserRepository {
   // fake database of users
   final List<User> _users = [
     User(
+      pass: Pass(passId: 
+      '1'
+      , type: PassType.monthly, startDate: DateTime.now().subtract(const Duration(days: 5)), endDate: DateTime.now().add(const Duration(days: 25)), price: 2, isActive: true),
       userId: 'u001',
       firstName: 'Pheng',
       lastName: 'Lyming',

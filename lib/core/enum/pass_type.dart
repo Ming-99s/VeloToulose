@@ -1,7 +1,7 @@
 enum PassType {
   payAsYouGo,
-  daily,
-  weekly,
+  day,
+  monthly,
   annual;
 
   static PassType fromString(String value) {

@@ -15,17 +15,6 @@ class RideViewModel extends ChangeNotifier {
 
   bool get hasActiveRide => activeRide != null;
 
-  // formatted timer string e.g. "12 : 30"
-  String get timerLabel {
-    if (activeRide == null) return '00 : 00';
-    final mins = activeRide!.duration;
-    final hours = mins ~/ 60;
-    final remaining = mins % 60;
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')} : ${remaining.toString().padLeft(2, '0')} h';
-    }
-    return '${mins.toString().padLeft(2, '0')} : 00 mn';
-  }
 
   // called when user confirms booking
   Future<void> startRide({
@@ -77,13 +66,14 @@ class RideViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    // update every minute
-    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
-      notifyListeners(); // triggers timerLabel to recompute
-    });
-  }
+void _startTimer() {
+  _timer?.cancel();
+
+  // update every second (smooth UI)
+  _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    notifyListeners();
+  });
+}
 
   void _stopTimer() {
     _timer?.cancel();

@@ -6,19 +6,20 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
+import 'package:velo_toulose/models/pass.dart';
 
 class BookingSuccessScreen extends StatefulWidget {
-  final String bikeType;
   final String bikeId;
   final String stationName;
   final String stationId;
+  final Pass? usedPass; // null = pay as you go
 
   const BookingSuccessScreen({
     super.key,
-    required this.bikeType,
     required this.bikeId,
     required this.stationName,
     required this.stationId,
+    this.usedPass,
   });
 
   @override
@@ -29,7 +30,6 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
   @override
   void initState() {
     super.initState();
-    // start ride as soon as booking is confirmed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startRide();
     });
@@ -39,12 +39,16 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
     final rideViewModel = context.read<RideViewModel>();
     final authViewModel = context.read<AuthViewModel>();
 
+    if (!authViewModel.isLoggedIn) return;
+
     await rideViewModel.startRide(
-      userId: authViewModel.currentUser?.userId ?? 'guest',
+      userId: authViewModel.currentUser!.userId,
       bikeId: widget.bikeId,
       startStationId: widget.stationId,
     );
   }
+
+  bool get isPaidWithPass => widget.usedPass != null;
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +107,28 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                 ),
                 child: Column(
                   children: [
-                    _DetailRow(
-                      label: 'Bike',
-                      value: '${widget.bikeType} #${widget.bikeId}',
-                    ),
                     const SizedBox(height: 12),
                     const Divider(color: AppColor.border, height: 1),
                     const SizedBox(height: 12),
                     _DetailRow(label: 'Station', value: widget.stationName),
+                    const SizedBox(height: 12),
+                    const Divider(color: AppColor.border, height: 1),
+                    const SizedBox(height: 12),
+                    _DetailRow(
+                      label: 'Payment',
+                      // show pass name or pay as you go
+                      value: isPaidWithPass
+                          ? '${widget.usedPass!.type.name} pass'
+                          : 'Pay-as-you-go',
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(color: AppColor.border, height: 1),
+                    const SizedBox(height: 12),
+                    _DetailRow(
+                      label: 'Bike Fee',
+                      // free if pass used
+                      value: isPaidWithPass ? 'Free ✓' : '€2.50',
+                    ),
                     const SizedBox(height: 12),
                     const Divider(color: AppColor.border, height: 1),
                     const SizedBox(height: 12),
@@ -128,7 +146,6 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                   isprimaryColor: true,
                   trailingIcon: Icons.pedal_bike,
                   onPressed: () {
-                    // pop all the way back to map — ride banner will show
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),

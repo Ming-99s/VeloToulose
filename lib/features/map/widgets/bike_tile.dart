@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
@@ -5,25 +6,28 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/confirm_dialog.dart';
 import 'package:velo_toulose/features/auth/view/auth_screen.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
+import 'package:velo_toulose/features/booking/view/payment_method_screen.dart';
 import 'package:velo_toulose/models/bike.dart';
+import 'package:velo_toulose/models/station.dart';
 
 class BikeTile extends StatelessWidget {
   const BikeTile({
     super.key,
     required this.bike,
-    required this.stationName,
+    required this.station,
     required this.onTap,
   });
 
   final Bike bike;
-  final String stationName;
+  final Station station;
   final Function() onTap;
 
   void _handleSelect(BuildContext context) {
-    final isLoggedIn = context.read<AuthViewModel>().isLoggedIn;
+    final authViewModel = context.read<AuthViewModel>();
 
-    if (!isLoggedIn) {
-      // show login prompt dialog
+    // not logged in → show login dialog
+    if (!authViewModel.isLoggedIn) {
       showDialog(
         context: context,
         builder: (_) => ConfirmDialog(
@@ -46,7 +50,24 @@ class BikeTile extends StatelessWidget {
       return;
     }
 
-    //if already login it continue
+    final user = authViewModel.currentUser!;
+
+    // user has active pass → skip payment screen → book directly for free
+    if (user.hasActivPass) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BookingSuccessScreen(
+            bikeId: bike.bikeId,
+            stationName: station.name,
+            stationId: station.stationId,
+            usedPass: user.pass, // ← pass used, no fee
+          ),
+        ),
+      );
+      return;
+    }
+
+    // pay as you go → show payment method screen
     onTap();
   }
 
@@ -58,7 +79,9 @@ class BikeTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 255, 247, 243),
         borderRadius: BorderRadius.circular(50),
-        border: Border.all(color: const Color.fromARGB(255, 255, 224, 210)),
+        border: Border.all(
+          color: const Color.fromARGB(255, 255, 224, 210),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,11 +99,7 @@ class BikeTile extends StatelessWidget {
                     color: const Color.fromARGB(255, 250, 208, 184),
                   ),
                 ),
-                child: Icon(
-                  Icons.pedal_bike,
-                  size: 30,
-                  color: AppColor.primary,
-                ),
+                child: Icon(Icons.pedal_bike, size: 30, color: AppColor.primary),
               ),
               const SizedBox(width: 10),
               Column(
@@ -88,7 +107,7 @@ class BikeTile extends StatelessWidget {
                 children: [
                   Text('# ${bike.bikeId}', style: AppTextStyle.cardTitle),
                   Text(
-                    '#${bike.slotId!} • ${bike.type}',
+                    '#${bike.slotId}',
                     style: AppTextStyle.pricePeriod,
                   ),
                 ],
@@ -102,7 +121,7 @@ class BikeTile extends StatelessWidget {
               color: AppColor.primary,
             ),
             child: TextButton(
-              onPressed: () => _handleSelect(context), // ← check login here
+              onPressed: () => _handleSelect(context),
               child: Text('Select', style: AppTextStyle.buttonText),
             ),
           ),

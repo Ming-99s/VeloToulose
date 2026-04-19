@@ -3,12 +3,10 @@ import 'package:velo_toulose/core/enum/bike_status.dart';
 
 class Bike {
   final String bikeId;
-  final String type;
   final String? slotId; 
 
   const Bike({
     required this.bikeId,
-    required this.type,
     this.slotId,
   });
 
@@ -27,14 +25,12 @@ class Bike {
 
   Bike copyWith({
     String? bikeId,
-    String? type,
     int? batteryLevel,
     String? slotId,
     bool clearSlotId = false,
   }) {
     return Bike(
       bikeId: bikeId ?? this.bikeId,
-      type: type ?? this.type,
       slotId: clearSlotId ? null : slotId ?? this.slotId,
     );
   }
