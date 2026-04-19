@@ -5,7 +5,11 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/confirm_dialog.dart';
 import 'package:velo_toulose/features/auth/view/auth_screen.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
+import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
 import 'package:velo_toulose/features/profile/widgets/pay_as_you_go_card.dart';
+import 'package:velo_toulose/features/notification/view/notification_screen.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/profile/widgets/tile_profile.dart';
 
 class ProfileContent extends StatelessWidget {
@@ -24,6 +28,7 @@ class ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
+    final passVm = context.watch<PassViewModel>();
 
     return SafeArea(
       child: Container(
@@ -110,7 +115,11 @@ class ProfileContent extends StatelessWidget {
               ),
 
               vm.isLoggedIn ?   SizedBox(height: 30) : SizedBox.shrink(),
-              vm.isLoggedIn ? PayAsYouGoCard() : SizedBox.shrink(),
+              vm.isLoggedIn
+                  ? (passVm.hasActivePass
+                      ? PassCard(pass: passVm.activePass!)
+                      : PayAsYouGoCard())
+                  : SizedBox.shrink(),
               vm.isLoggedIn ?  SizedBox(height: 30) : SizedBox.shrink(),
 
               Container(
@@ -132,7 +141,14 @@ class ProfileContent extends StatelessWidget {
                           TileProfile(
                             label: 'Notification',
                             icon: Icons.notifications,
-                            onTap: () => {},
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const NotificationScreen(),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       )

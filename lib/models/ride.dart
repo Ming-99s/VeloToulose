@@ -7,7 +7,7 @@ class Ride {
   final DateTime startTime;
   final DateTime? endTime; // null = ride still in progress
 
-  static const int freeMinutes = 30;
+  static const int freeSeconds = 3; // 3 seconds free for demo
 
   const Ride({
     required this.rideId,
@@ -19,25 +19,24 @@ class Ride {
     this.endTime,
   });
 
-  // Derived — computed from start/end time
+  // Derived — duration in seconds
   int get duration {
     final end = endTime ?? DateTime.now();
-    return end.difference(startTime).inMinutes;
+    return end.difference(startTime).inSeconds;
   }
 
-  bool isOvertime() => duration > freeMinutes;
+  bool isOvertime() => duration > freeSeconds;
 
   // Derived — computed, never stored
   double get cost => calculateCost();
 
   double calculateCost() {
-    const double unlockFee = 1.20;
-    const double overtimeRatePerMinute = 0.10;
+    const double overtimeRatePerSecond = 0.05;
 
-    if (!isOvertime()) return unlockFee;
+    if (!isOvertime()) return 0;
 
-    final overtimeMinutes = duration - freeMinutes;
-    return unlockFee + (overtimeMinutes * overtimeRatePerMinute);
+    final overtimeSeconds = duration - freeSeconds;
+    return overtimeSeconds * overtimeRatePerSecond;
   }
 
   bool get isInProgress => endTime == null;

@@ -6,8 +6,10 @@ import 'package:velo_toulose/features/map/utils/distance_format.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/bike_tile.dart';
 import 'package:velo_toulose/features/map/widgets/empty_dock.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/booking/view/payment_method_screen.dart';
+import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
 import 'package:velo_toulose/models/slot.dart';
 import 'package:velo_toulose/models/station.dart';
 
@@ -23,11 +25,22 @@ class BottomSheetWidget extends StatelessWidget {
   final MapViewModel viewModel;
   final ScrollController scrollController;
 
-  Future<void> endRide(BuildContext context) async{
-    await context.read<RideViewModel>().endRide(station.stationId);
+  Future<void> endRide(BuildContext context) async {
+    final endedRide = await context.read<RideViewModel>().endRide(
+      station.stationId,
+    );
+
+    // If ride ended successfully, create a payment receipt notification
+    if (endedRide != null && context.mounted) {
+      final hasPass = context.read<PassViewModel>().hasActivePass;
+      context.read<NotificationViewModel>().addRideReceipt(
+        endedRide,
+        hasPass: hasPass,
+      );
+    }
+
     if (context.mounted) {
       viewModel.clearSelectedStation();
-      Navigator.pop(context);
     }
   }
 

@@ -22,6 +22,19 @@ class PassViewModel extends ChangeNotifier {
   Pass? get selectedPass =>
       _passes.isNotEmpty ? _passes[_selectedIndex] : null;
 
+  // The pass the user has activated 
+  Pass? _activePass;
+  Pass? get activePass => _activePass;
+
+  bool get hasActivePass => _activePass != null;
+
+  void activatePass() {
+    if (selectedPass != null) {
+      _activePass = selectedPass;
+      notifyListeners();
+    }
+  }
+
   Future<void> fetchPasses() async {
     _isLoading = true;
     _errorMessage = null;

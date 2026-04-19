@@ -4,6 +4,7 @@ import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
 import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
 import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
@@ -42,6 +43,9 @@ List<InheritedProvider> get devProviders {
     ),
     ChangeNotifierProvider<RideViewModel>(
       create: (_) => RideViewModel(rideRepository),
+    ),
+    ChangeNotifierProvider<NotificationViewModel>(
+      create: (_) => NotificationViewModel(),
     ),
   ];
 }

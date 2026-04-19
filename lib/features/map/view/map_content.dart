@@ -9,6 +9,8 @@ import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
 import 'package:velo_toulose/features/ride/view/ride_active_screen.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
+import 'package:velo_toulose/features/notification/view/notification_screen.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 
 class MapContent extends StatefulWidget {
   const MapContent({super.key});
@@ -222,9 +224,46 @@ void _goToSearch() {
                         BoxShadow(color: Colors.black12, blurRadius: 10),
                       ],
                     ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.notifications),
+                    child: Stack(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.notifications),
+                        ),
+                        // Red badge for unread count
+                        Builder(
+                          builder: (context) {
+                            final unread = context.watch<NotificationViewModel>().unreadCount;
+                            if (unread == 0) return const SizedBox.shrink();
+                            return Positioned(
+                              right: 6,
+                              top: 6,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: AppColor.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  '$unread',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ],

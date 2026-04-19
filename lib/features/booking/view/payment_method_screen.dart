@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
+import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
 import 'package:velo_toulose/features/booking/widgets/selected_bike_card.dart';
 import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
 import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
+import 'package:velo_toulose/features/profile/widgets/pass_card.dart' as profile;
 import 'package:velo_toulose/models/station.dart';
 
 enum PaymentMethodOption { payAsYouGo, selectPass }
@@ -32,6 +35,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final passVm = context.watch<PassViewModel>();
+    final hasPass = passVm.hasActivePass;
+
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -76,54 +82,63 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
               ),
               const SizedBox(height: 28),
 
-              // Payment method section
-              Text(
-                'PAYMENT METHOD',
-                style: AppTextStyle.label.copyWith(color: AppColor.textSecondary),
-              ),
-              const SizedBox(height: 12),
+              if (hasPass) ...[
+                Text(
+                  'YOUR PASS',
+                  style: AppTextStyle.label.copyWith(color: AppColor.textSecondary),
+                ),
+                const SizedBox(height: 12),
+                profile.PassCard(pass: passVm.activePass!),
+              ] else ...[
+                Text(
+                  'PAYMENT METHOD',
+                  style: AppTextStyle.label.copyWith(color: AppColor.textSecondary),
+                ),
+                const SizedBox(height: 12),
 
-              // Pay-as-you-go option
-              _PaymentOptionTile(
-                icon: Icons.directions_bike,
-                title: 'Pay-as-you-go',
-                subtitle: '€2.50 per ride. First 30 minutes free,\nthen €0.05/min.',
-                isSelected: _selected == PaymentMethodOption.payAsYouGo,
-                onTap: () => setState(() => _selected = PaymentMethodOption.payAsYouGo),
-              ),
-              const SizedBox(height: 12),
+                // Pay-as-you-go option
+                _PaymentOptionTile(
+                  icon: Icons.directions_bike,
+                  title: 'Pay-as-you-go',
+                  subtitle: '€2.50 per ride. First 30 minutes free,\nthen €0.05/min.',
+                  isSelected: _selected == PaymentMethodOption.payAsYouGo,
+                  onTap: () => setState(() => _selected = PaymentMethodOption.payAsYouGo),
+                ),
+                const SizedBox(height: 12),
 
-              // Select a Pass option
-              _PaymentOptionTile(
-                icon: Icons.card_membership,
-                title: 'Select a Pass',
-                subtitle: 'Unlock unlimited rides with a daily,\nweekly, or monthly pass.',
-                isSelected: _selected == PaymentMethodOption.selectPass,
-                onTap: () => setState(() => _selected = PaymentMethodOption.selectPass),
-              ),
+                // Select a Pass option
+                _PaymentOptionTile(
+                  icon: Icons.card_membership,
+                  title: 'Select a Pass',
+                  subtitle: 'Unlock unlimited rides with a daily,\nweekly, or monthly pass.',
+                  isSelected: _selected == PaymentMethodOption.selectPass,
+                  onTap: () => setState(() => _selected = PaymentMethodOption.selectPass),
+                ),
+              ],
 
               const Spacer(),
 
-              // Price summary
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Booking Fee', style: AppTextStyle.subheading),
-                  Text('€2.50', style: AppTextStyle.subheading),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Total Today',
-                    style: AppTextStyle.cardTitle.copyWith(fontSize: 18),
-                  ),
-                  Text('€2.50', style: AppTextStyle.priceTag),
-                ],
-              ),
-              const SizedBox(height: 20),
+              if (!hasPass) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Booking Fee', style: AppTextStyle.subheading),
+                    Text('€2.50', style: AppTextStyle.subheading),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total Today',
+                      style: AppTextStyle.cardTitle.copyWith(fontSize: 18),
+                    ),
+                    Text('€2.50', style: AppTextStyle.priceTag),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // Confirm button
               Padding(
@@ -133,7 +148,19 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   isprimaryColor: true,
                   trailingIcon: Icons.arrow_forward,
                   onPressed: () {
-                    if (_selected == PaymentMethodOption.selectPass) {
+                    if (hasPass) {
+                      // Has a pass go straight to booking success
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => BookingSuccessScreen(
+                            bikeType: widget.bikeType,
+                            bikeId: widget.bikeId,
+                            stationName: widget.station.name,
+                            stationId: widget.station.stationId,
+                          ),
+                        ),
+                      );
+                    } else if (_selected == PaymentMethodOption.selectPass) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => PassView(

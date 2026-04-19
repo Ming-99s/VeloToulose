@@ -16,7 +16,7 @@ class TileProfile extends StatelessWidget {
         color: AppColor.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(30),
-          onTap: ()=>onTap,
+          onTap: onTap,
           child: ListTile(
             leading: Container(
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
