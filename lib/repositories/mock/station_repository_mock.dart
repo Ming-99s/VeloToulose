@@ -34,7 +34,19 @@ class StationRepositoryMock implements StationRepostiory{
       );
     });
   }
+    @override
+  Future<List<Slot>> loadSlotsByStation(String stationId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
 
+    // mock bikes — in real app this comes from API
+  final allSlots = {
+      '1': _buildSlots(stationId: '1', total: 10, occupied: 5),
+      '2': _buildSlots(stationId: '2', total: 8, occupied: 2),
+      '3': _buildSlots(stationId: '3', total: 6, occupied: 0),
+    };
+
+    return allSlots[stationId] ?? [];
+  }
   @override
   Future<List<Bike>> loadBikesByStation(String stationId) async {
     await Future.delayed(const Duration(milliseconds: 500));

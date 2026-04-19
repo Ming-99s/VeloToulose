@@ -19,6 +19,7 @@ class Station {
 
   // Derived attribute — computed from slots, never stored
   int get availableBikes => slots.where((slot) => slot.bikeId != null).length;
+  int get emptyDock => slots.where((s) => s.isEmpty()).length;
 
   List<Slot> getAvailableBikes() =>
       slots.where((slot) => slot.bikeId != null).toList();

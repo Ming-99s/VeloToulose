@@ -4,13 +4,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
-import 'package:velo_toulose/features/map/utils/distance_format.dart';
+import 'package:velo_toulose/features/map/view/search_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
-import 'package:velo_toulose/features/map/widgets/bottom_sheet_widget.dart';
 import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
-import 'package:velo_toulose/features/map/widgets/search_bar.dart';
 import 'package:velo_toulose/features/ride/view/ride_active_screen.dart';
-import 'package:velo_toulose/models/station.dart';
+import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 
 class MapContent extends StatefulWidget {
   const MapContent({super.key});
@@ -26,7 +24,6 @@ class _MapContentState extends State<MapContent> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLocation();
     });
@@ -34,7 +31,6 @@ class _MapContentState extends State<MapContent> {
 
   Future<void> _loadLocation() async {
     final viewModel = context.read<MapViewModel>();
-
     await viewModel.getUserLocation();
     await viewModel.loadStations();
 
@@ -43,12 +39,47 @@ class _MapContentState extends State<MapContent> {
     }
   }
 
+  // smooth fade + slide transition to search screen
+void _goToSearch() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            SearchScreen(mapController: _mapController), 
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0, 0.05),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                  ),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _goRideActive() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RideActiveScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<MapViewModel>();
+    final mapViewModel = context.watch<MapViewModel>();
+    final rideViewModel = context.watch<RideViewModel>();
 
     return Stack(
       children: [
+        // map
         FlutterMap(
           mapController: _mapController,
           options: const MapOptions(
@@ -65,11 +96,12 @@ class _MapContentState extends State<MapContent> {
               maxZoom: 20,
             ),
 
-            if (viewModel.userLocation != null)
+            // user location dot
+            if (mapViewModel.userLocation != null)
               MarkerLayer(
                 markers: [
                   Marker(
-                    point: viewModel.userLocation!,
+                    point: mapViewModel.userLocation!,
                     width: 60,
                     height: 60,
                     child: Stack(
@@ -90,7 +122,7 @@ class _MapContentState extends State<MapContent> {
                             shape: BoxShape.circle,
                             color: Colors.blue,
                             border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.blueAccent,
                                 blurRadius: 8,
@@ -104,16 +136,18 @@ class _MapContentState extends State<MapContent> {
                   ),
                 ],
               ),
-            if (viewModel.stations.isNotEmpty)
+
+            // station markers
+            if (mapViewModel.stations.isNotEmpty)
               MarkerLayer(
-                markers: viewModel.stations.map((station) {
+                markers: mapViewModel.stations.map((station) {
                   return Marker(
                     point: station.location,
                     width: 60,
                     height: 35,
                     child: GestureDetector(
-                      onTap: () => viewModel.selectStation(station),
-                      child: BuildStationMarkerWidget(station: station),
+                      onTap: () => mapViewModel.selectStation(station),
+                      child: BuildStationMarkerWidget(station: station,hasActiveRide: rideViewModel.hasActiveRide,),
                     ),
                   );
                 }).toList(),
@@ -121,6 +155,14 @@ class _MapContentState extends State<MapContent> {
           ],
         ),
 
+        // active ride banner — only show when ride is active
+        if (rideViewModel.hasActiveRide)
+          _buildRideActiveBanner(
+            timerLabel: rideViewModel.timerLabel,
+            onTap: _goRideActive,
+          ),
+
+        // top bar: search + notifications
         Positioned(
           top: 0,
           left: 0,
@@ -130,25 +172,58 @@ class _MapContentState extends State<MapContent> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Expanded(child: SearchBarVelo()),
+                  // search bar with hero animation
+                  Expanded(
+                    child: Hero(
+                      tag: 'search_bar',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: GestureDetector(
+                          onTap: _goToSearch,
+                          child: Container(
+                            height: 50,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.search,
+                                  color: AppColor.textSecondary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Search station...',
+                                  style: TextStyle(
+                                    color: AppColor.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(color: Colors.black12, blurRadius: 10),
                       ],
                     ),
                     child: IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const RideActiveScreen(startTimer: false),
-                          ),
-                        );
-                      },
+                      onPressed: () {},
                       icon: const Icon(Icons.notifications),
                     ),
                   ),
@@ -160,4 +235,81 @@ class _MapContentState extends State<MapContent> {
       ],
     );
   }
+}
+
+Widget _buildRideActiveBanner({
+  required String timerLabel,
+  required VoidCallback onTap,
+}) {
+  return Positioned(
+    bottom: 100,
+    left: 0,
+    right: 0,
+    child: Container(
+      margin: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(52, 255, 94, 0),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+            spreadRadius: 2,
+          ),
+        ],
+        color: AppColor.primary,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Material(
+        color: AppColor.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(30),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(width: 5),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: AppColor.primaryLight,
+                      ),
+                      child: Icon(Icons.pedal_bike, color: AppColor.primary),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ride Active',
+                          style: TextStyle(
+                            color: AppColor.background,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        // real timer from RideViewModel
+                        Text(timerLabel, style: AppTextStyle.buttonText),
+                      ],
+                    ),
+                  ],
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColor.background,
+                  size: 30,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }

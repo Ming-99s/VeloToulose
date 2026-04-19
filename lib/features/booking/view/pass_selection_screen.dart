@@ -3,20 +3,21 @@ import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
-import 'package:velo_toulose/features/payment/viewmodel/pass_viewmode.dart';
-import 'package:velo_toulose/features/payment/widgets/pass_cart.dart';
-import 'package:velo_toulose/features/payment/view/booking_success_screen.dart';
+import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
+import 'package:velo_toulose/features/booking/widgets/pass_cart.dart';
+import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
+import 'package:velo_toulose/models/station.dart';
 
 class PassView extends StatelessWidget {
   final String bikeType;
   final String bikeId;
-  final String stationName;
+  final Station station;
 
   const PassView({
     super.key,
     required this.bikeType,
     required this.bikeId,
-    required this.stationName,
+    required this.station,
   });
 
   @override
@@ -94,7 +95,8 @@ class PassView extends StatelessWidget {
                                   builder: (_) => BookingSuccessScreen(
                                     bikeType: bikeType,
                                     bikeId: bikeId,
-                                    stationName: stationName,
+                                    stationName: station.name,
+                                    stationId: station.stationId,
                                   ),
                                 ),
                               );

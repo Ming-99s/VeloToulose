@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
-import 'package:velo_toulose/features/payment/widgets/selected_bike_card.dart';
-import 'package:velo_toulose/features/payment/view/pass_selection_screen.dart';
-import 'package:velo_toulose/features/payment/view/booking_success_screen.dart';
+import 'package:velo_toulose/features/booking/widgets/selected_bike_card.dart';
+import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
+import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
 import 'package:velo_toulose/models/station.dart';
 
 enum PaymentMethodOption { payAsYouGo, selectPass }
@@ -139,7 +139,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                           builder: (_) => PassView(
                             bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
-                            stationName: widget.station.name,
+                            station: widget.station,
                           ),
                         ),
                       );
@@ -150,6 +150,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                             bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
                             stationName: widget.station.name,
+                            stationId: widget.station.stationId,
                           ),
                         ),
                       );

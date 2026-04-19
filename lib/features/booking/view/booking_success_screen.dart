@@ -1,21 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
-import 'package:velo_toulose/features/ride/view/ride_active_screen.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 
-class BookingSuccessScreen extends StatelessWidget {
+class BookingSuccessScreen extends StatefulWidget {
   final String bikeType;
   final String bikeId;
   final String stationName;
+  final String stationId;
 
   const BookingSuccessScreen({
     super.key,
     required this.bikeType,
     required this.bikeId,
     required this.stationName,
+    required this.stationId,
   });
+
+  @override
+  State<BookingSuccessScreen> createState() => _BookingSuccessScreenState();
+}
+
+class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // start ride as soon as booking is confirmed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startRide();
+    });
+  }
+
+  Future<void> _startRide() async {
+    final rideViewModel = context.read<RideViewModel>();
+    final authViewModel = context.read<AuthViewModel>();
+
+    await rideViewModel.startRide(
+      userId: authViewModel.currentUser?.userId ?? 'guest',
+      bikeId: widget.bikeId,
+      startStationId: widget.stationId,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +57,6 @@ class BookingSuccessScreen extends StatelessWidget {
             children: [
               const Spacer(flex: 2),
 
-              // Lottie bike animation
               Lottie.asset(
                 'assets/stickers/bike.json',
                 width: 200,
@@ -37,7 +65,6 @@ class BookingSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Success icon
               Container(
                 width: 64,
                 height: 64,
@@ -53,7 +80,6 @@ class BookingSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Title
               const Text(
                 'Booking Confirmed!',
                 style: AppTextStyle.heading,
@@ -61,7 +87,6 @@ class BookingSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Subtitle
               Text(
                 'Enjoy your ride',
                 style: AppTextStyle.subheading.copyWith(fontSize: 16),
@@ -69,7 +94,6 @@ class BookingSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Ride details card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -79,11 +103,14 @@ class BookingSuccessScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _DetailRow(label: 'Bike', value: '$bikeType #$bikeId'),
+                    _DetailRow(
+                      label: 'Bike',
+                      value: '${widget.bikeType} #${widget.bikeId}',
+                    ),
                     const SizedBox(height: 12),
                     const Divider(color: AppColor.border, height: 1),
                     const SizedBox(height: 12),
-                    _DetailRow(label: 'Station', value: stationName),
+                    _DetailRow(label: 'Station', value: widget.stationName),
                     const SizedBox(height: 12),
                     const Divider(color: AppColor.border, height: 1),
                     const SizedBox(height: 12),
@@ -94,7 +121,6 @@ class BookingSuccessScreen extends StatelessWidget {
 
               const Spacer(flex: 3),
 
-              // Start Riding button — pops back to map
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: AppButton(
@@ -102,13 +128,8 @@ class BookingSuccessScreen extends StatelessWidget {
                   isprimaryColor: true,
                   trailingIcon: Icons.pedal_bike,
                   onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const RideActiveScreen(startTimer: true),
-                      ),
-                      (route) => route.isFirst,
-                    );
+                    // pop all the way back to map — ride banner will show
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),
               ),

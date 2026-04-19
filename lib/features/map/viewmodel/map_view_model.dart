@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:velo_toulose/models/bike.dart';
+import 'package:velo_toulose/models/slot.dart';
 import 'package:velo_toulose/models/station.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
 
@@ -15,11 +16,13 @@ class MapViewModel extends ChangeNotifier {
 
   List<Station> stations = [];
   List<Bike> bikes = [];
+  List<Slot> slots = [];
 
   void selectStation(Station station) {
     selectedStation = station;
     notifyListeners();
     loadBikesByStation(station.stationId);
+    loadDockByStation(station.stationId);
   }
 
   void clearSelectedStation() {
@@ -40,12 +43,21 @@ class MapViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadDockByStation(String stationid) async {
+    slots = await stationRepostiory.loadSlotsByStation(stationid);
+    notifyListeners();
+  }
+
   List<Bike> getBikesAt(Station station) {
     return bikes
         .where(
           (bike) => station.slots.any((slot) => slot.bikeId == bike.bikeId),
         )
         .toList();
+  }
+
+  List<Slot> getDockAt(Station station) {
+    return slots.where((s) => s.isEmpty()).toList();
   }
 
   double? getDistanceTo(Station station) {
