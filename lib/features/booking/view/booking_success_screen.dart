@@ -8,14 +8,12 @@ import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 
 class BookingSuccessScreen extends StatefulWidget {
-  final String bikeType;
   final String bikeId;
   final String stationName;
   final String stationId;
 
   const BookingSuccessScreen({
     super.key,
-    required this.bikeType,
     required this.bikeId,
     required this.stationName,
     required this.stationId,
@@ -105,7 +103,7 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                   children: [
                     _DetailRow(
                       label: 'Bike',
-                      value: '${widget.bikeType} #${widget.bikeId}',
+                      value: '#${widget.bikeId}',
                     ),
                     const SizedBox(height: 12),
                     const Divider(color: AppColor.border, height: 1),

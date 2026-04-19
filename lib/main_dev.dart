@@ -11,20 +11,17 @@ import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
 import 'package:velo_toulose/repositories/abstract/user_repository.dart';
 import 'package:velo_toulose/repositories/local/pref_repository.dart';
-import 'package:velo_toulose/repositories/mock/pass_repository_mock.dart';
 import 'package:velo_toulose/repositories/mock/ride_repository_mock.dart';
 import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
 import 'package:velo_toulose/repositories/mock/user_repository_mock.dart';
 
 List<InheritedProvider> get devProviders {
-  final PassRepository passRepository = PassRepositoryMock();
   final StationRepostiory stationRepo = StationRepositoryMock();
   final UserRepository userRepository = UserRepositoryMock();
   final RideRepository rideRepository = RideRepositoryMock();
 
   return [
     // repositories
-    Provider<PassRepository>(create: (_) => passRepository),
     Provider<StationRepostiory>(create: (_) => stationRepo),
     Provider<UserRepository>(create: (_) => userRepository),
     Provider<PreferencesRepository>(create: (_) => PreferencesRepository()),
@@ -37,9 +34,6 @@ List<InheritedProvider> get devProviders {
 
     ChangeNotifierProvider<MapViewModel>(
       create: (context) => MapViewModel(context.read<StationRepostiory>()),
-    ),
-    ChangeNotifierProvider<PassViewModel>(
-      create: (_) => PassViewModel(repository: passRepository)..fetchPasses(),
     ),
     ChangeNotifierProvider<RideViewModel>(
       create: (_) => RideViewModel(rideRepository),

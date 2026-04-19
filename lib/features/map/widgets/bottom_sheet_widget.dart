@@ -10,7 +10,6 @@ import 'package:velo_toulose/features/notification/viewmodel/notification_view_m
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/booking/view/payment_method_screen.dart';
 import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
-import 'package:velo_toulose/models/slot.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class BottomSheetWidget extends StatelessWidget {
@@ -49,7 +48,6 @@ class BottomSheetWidget extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => PaymentMethodScreen(
           station: station,
-          bikeType: bike.type,
           bikeId: bike.bikeId,
           slotLabel: bike.slotId ?? '-',
         ),

@@ -14,14 +14,12 @@ enum PaymentMethodOption { payAsYouGo, selectPass }
 
 class PaymentMethodScreen extends StatefulWidget {
   final Station station;
-  final String bikeType;
   final String bikeId;
   final String slotLabel;
 
   const PaymentMethodScreen({
     super.key,
     required this.station,
-    required this.bikeType,
     required this.bikeId,
     required this.slotLabel,
   });
@@ -76,7 +74,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
               // Selected Bike Card 
               SelectedBikeCard(
-                bikeType: widget.bikeType,
                 bikeId: widget.bikeId,
                 slotLabel: widget.slotLabel,
               ),
@@ -153,7 +150,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => BookingSuccessScreen(
-                            bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
                             stationName: widget.station.name,
                             stationId: widget.station.stationId,
@@ -164,7 +160,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => PassView(
-                            bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
                             station: widget.station,
                           ),
@@ -174,7 +169,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => BookingSuccessScreen(
-                            bikeType: widget.bikeType,
                             bikeId: widget.bikeId,
                             stationName: widget.station.name,
                             stationId: widget.station.stationId,

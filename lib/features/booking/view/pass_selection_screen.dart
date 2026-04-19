@@ -11,13 +11,11 @@ import 'package:velo_toulose/features/notification/viewmodel/notification_view_m
 import 'package:velo_toulose/models/station.dart';
 
 class PassView extends StatelessWidget {
-  final String? bikeType;
   final String? bikeId;
   final Station? station;
 
   const PassView({
     super.key,
-    this.bikeType,
     this.bikeId,
     this.station,
   });
@@ -101,11 +99,10 @@ class PassView extends StatelessWidget {
                                 context.read<NotificationViewModel>().addPassPurchase(pass, userId);
                               }
 
-                              if (bikeType != null && bikeId != null && station != null) {
+                              if (bikeId != null && station != null) {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => BookingSuccessScreen(
-                                      bikeType: bikeType!,
                                       bikeId: bikeId!,
                                       stationName: station!.name,
                                       stationId: station!.stationId,

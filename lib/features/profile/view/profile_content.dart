@@ -9,7 +9,6 @@ import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
 import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
 import 'package:velo_toulose/features/profile/widgets/pay_as_you_go_card.dart';
 import 'package:velo_toulose/features/notification/view/notification_screen.dart';
-import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/profile/widgets/tile_profile.dart';
 
 class ProfileContent extends StatelessWidget {
