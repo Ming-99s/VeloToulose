@@ -1,131 +1,139 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:velo_toulose/core/enum/slot_status.dart';
 import 'package:velo_toulose/models/bike.dart';
-import 'package:velo_toulose/models/station.dart';
 import 'package:velo_toulose/models/slot.dart';
+import 'package:velo_toulose/models/station.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
 
-class StationRepositoryMock implements StationRepostiory {
-  late final List<Station> _stations;
-  final List<Bike> _allBikes = []; // ← global bike registry
+class StationRepositoryFirebase implements StationRepostiory {
+  final FirebaseDatabase _db;
 
-  StationRepositoryMock() {
-    _stations = [
-      Station(
-        stationId: '1',
-        name: 'Central Station',
-        location: const LatLng(11.492046, 104.943556),
-        capacity: 10,
-        slots: _buildSlots(stationId: '1', total: 10, occupied: 5),
-      ),
-      Station(
-        stationId: '2',
-        name: 'River Park',
-        location: const LatLng(11.5530, 104.9250),
-        capacity: 8,
-        slots: _buildSlots(stationId: '2', total: 8, occupied: 2),
-      ),
-      Station(
-        stationId: '3',
-        name: 'Night Market',
-        location: const LatLng(11.5580, 104.9350),
-        capacity: 6,
-        slots: _buildSlots(stationId: '3', total: 6, occupied: 0),
-      ),
-    ];
+  StationRepositoryFirebase({FirebaseDatabase? db})
+    : _db = db ?? FirebaseDatabase.instance;
 
-    // build _allBikes from all occupied slots across all stations
-    for (final station in _stations) {
-      for (final slot in station.slots) {
-        if (slot.bikeId != null) {
-          _allBikes.add(Bike(bikeId: slot.bikeId!, slotId: slot.slotId));
-        }
-      }
-    }
-  }
+  DatabaseReference get _stations => _db.ref('stations');
+  DatabaseReference get _bikes => _db.ref('bikes');
 
-  List<Slot> _buildSlots({
-    required String stationId,
-    required int total,
-    required int occupied,
-  }) {
-    return List.generate(total, (i) {
-      final hasBike = i < occupied;
-      final slotNumber = i + 1;
-      return Slot(
-        slotId: '${stationId}_slot_$slotNumber',
-        stationId: stationId,
-        bikeId: hasBike ? 'bike_${stationId}_$slotNumber' : null,
+  @override
+  Future<List<Station>> loadStations() async {
+    final snapshot = await _stations.get();
+    if (!snapshot.exists) return [];
+
+    final stationsMap = Map<String, dynamic>.from(snapshot.value as Map);
+    final List<Station> result = [];
+
+    for (final entry in stationsMap.entries) {
+      final id = entry.key;
+      final data = Map<String, dynamic>.from(entry.value as Map);
+
+      final slots = await loadSlotsByStation(id);
+
+      final locationData = Map<String, dynamic>.from(data['location'] as Map);
+      final location = LatLng(
+        (locationData['lat'] as num).toDouble(),
+        (locationData['lng'] as num).toDouble(),
       );
-    });
-  }
 
-  Station _getStation(String stationId) =>
-      _stations.firstWhere((s) => s.stationId == stationId);
-
-  @override
-  void removeBikeFromStation(String stationId, String bikeId) {
-    final station = _getStation(stationId);
-    final idx = _stations.indexOf(station);
-
-    // update slot — free it
-    final updatedSlots = station.slots.map((slot) {
-      if (slot.bikeId == bikeId) {
-        return slot.copyWith(clearBike: true);
-      }
-      return slot;
-    }).toList();
-
-    _stations[idx] = station.copyWith(slots: updatedSlots);
-
-    // remove bike from global registry
-    _allBikes.removeWhere((b) => b.bikeId == bikeId);
-  }
-
-  @override
-  void addBikeToStation(String stationId, String bikeId) {
-    final station = _getStation(stationId);
-    final idx = _stations.indexOf(station);
-    bool placed = false;
-    String? placedSlotId;
-
-    // occupy first free slot
-    final updatedSlots = station.slots.map((slot) {
-      if (!placed && slot.isEmpty) {
-        placed = true;
-        placedSlotId = slot.slotId;
-        return slot.copyWith(bikeId: bikeId);
-      }
-      return slot;
-    }).toList();
-
-    _stations[idx] = station.copyWith(slots: updatedSlots);
-
-    // add bike to global registry linked to its new slot
-    if (placedSlotId != null) {
-      _allBikes.add(Bike(bikeId: bikeId, slotId: placedSlotId!));
+      result.add(
+        Station(
+          stationId: id,
+          name: data['name'] as String,
+          location: location,
+          capacity: data['capacity'] as int,
+          slots: slots,
+        ),
+      );
     }
+
+    return result;
   }
 
   @override
   Future<List<Slot>> loadSlotsByStation(String stationId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return _getStation(stationId).slots;
+    final snapshot = await _stations.child('$stationId/slots').get();
+    if (!snapshot.exists) return [];
+
+    final slotsMap = Map<String, dynamic>.from(snapshot.value as Map);
+
+    return slotsMap.entries.map((entry) {
+      final id = entry.key;
+      final data = Map<String, dynamic>.from(entry.value as Map);
+      return Slot(
+        slotId: id,
+        stationId: stationId,
+        bikeId: data['bikeId'] as String?,
+      );
+    }).toList();
   }
 
   @override
   Future<List<Bike>> loadBikesByStation(String stationId) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    // return only bikes whose slotId belongs to this station
-    final stationSlotIds = _getStation(
-      stationId,
-    ).slots.map((s) => s.slotId).toSet();
-    return _allBikes.where((b) => stationSlotIds.contains(b.slotId)).toList();
+    final snapshot = await _bikes
+        .orderByChild('stationId')
+        .equalTo(stationId)
+        .get();
+    if (!snapshot.exists || snapshot.value == null) return [];
+
+    final raw = snapshot.value;
+    if (raw is! Map) return [];
+
+    return raw.entries.map((entry) {
+      final data = Map<String, dynamic>.from(entry.value as Map);
+      return Bike(
+        bikeId: entry.key as String,
+        slotId: data['slotId'] as String?,
+      );
+    }).toList();
   }
 
   @override
-  Future<List<Station>> loadStations() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return _stations;
+  void removeBikeFromStation(String stationId, String bikeId) async {
+    // Find which slot has this bike and clear it
+    final slotsSnap = await _stations.child('$stationId/slots').get();
+    if (!slotsSnap.exists) return;
+
+    final slotsMap = Map<String, dynamic>.from(slotsSnap.value as Map);
+    for (final entry in slotsMap.entries) {
+      final data = Map<String, dynamic>.from(entry.value as Map);
+      if (data['bikeId'] == bikeId) {
+        // Free the slot
+        await _stations.child('$stationId/slots/${entry.key}').update({
+          'bikeId': null,
+          'status': 'free',
+        });
+        break;
+      }
+    }
+
+    // Mark bike as on a ride
+    await _bikes.child(bikeId).update({'slotId': null, 'stationId': null});
+  }
+
+  @override
+  void addBikeToStation(String stationId, String bikeId) async {
+    // Find first free slot in this station
+    final slotsSnap = await _stations.child('$stationId/slots').get();
+    if (!slotsSnap.exists) return;
+
+    final slotsMap = Map<String, dynamic>.from(slotsSnap.value as Map);
+    for (final entry in slotsMap.entries) {
+      final data = Map<String, dynamic>.from(entry.value as Map);
+      if (data['bikeId'] == null) {
+        final slotId = entry.key;
+
+        // Assign bike to first free slot
+        await _stations.child('$stationId/slots/$slotId').update({
+          'bikeId': bikeId,
+          'status': 'occupied',
+        });
+
+        // Update bike location
+        await _bikes.child(bikeId).update({
+          'slotId': slotId,
+          'stationId': stationId,
+        });
+        break;
+      }
+    }
   }
 }
