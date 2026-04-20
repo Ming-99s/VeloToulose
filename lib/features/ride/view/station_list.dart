@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
+import 'package:velo_toulose/features/ride/widgets/return_station_card.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class StationListSection extends StatelessWidget {
-  const StationListSection({super.key});
+  const StationListSection({super.key,required this.mapController});
 
-  void _selectStation(BuildContext context, Station station) {
+  final MapController mapController;
+
+  void _selectStation(Station station, BuildContext context) {
     context.read<MapViewModel>().selectStation(station);
-    Navigator.of(context).pop(); // go back to map
+
+    // move map to station location after popping back
+    Navigator.pop(context);
+
+    // small delay to let the screen transition finish first
+    Future.delayed(const Duration(milliseconds: 300), () {
+      mapController.move(station.location, 17.0); // zoom in on station
+    });
   }
 
   String _formatDistance(double meters) {
@@ -92,7 +103,7 @@ class StationListSection extends StatelessWidget {
                 final hasSlots = freeSlots > 0;
                 final distance = mapVm.getDistanceTo(station);
 
-                return _StationCard(
+                return StationCard(
                   station: station,
                   freeSlots: freeSlots,
                   hasSlots: hasSlots,
@@ -100,185 +111,13 @@ class StationListSection extends StatelessWidget {
                       ? _formatDistance(distance)
                       : null,
                   onTap: hasSlots
-                      ? () => _selectStation(context, station)
+                      ? () => _selectStation(station,context)
                       : null,
                 );
               },
             ),
           ),
       ],
-    );
-  }
-}
-
-class _StationCard extends StatelessWidget {
-  final Station station;
-  final int freeSlots;
-  final bool hasSlots;
-  final String? distanceLabel;
-  final VoidCallback? onTap;
-
-  const _StationCard({
-    required this.station,
-    required this.freeSlots,
-    required this.hasSlots,
-    required this.distanceLabel,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final slotColor = hasSlots
-        ? const Color(0xFF16A34A)
-        : AppColor.textSecondary;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: hasSlots
-                ? const Color(0xFF16A34A).withOpacity(0.25)
-                : AppColor.border,
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: hasSlots
-                  ? const Color(0xFF16A34A).withOpacity(0.06)
-                  : Colors.black.withOpacity(0.03),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // dock icon
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: hasSlots
-                    ? const Color(0xFF16A34A).withOpacity(0.08)
-                    : AppColor.border.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(Icons.dock_rounded, color: slotColor, size: 26),
-            ),
-
-            const SizedBox(width: 14),
-
-            // station info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(station.name, style: AppTextStyle.cardTitle),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      // availability dot
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: slotColor,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        hasSlots
-                            ? '$freeSlots free dock${freeSlots > 1 ? 's' : ''}'
-                            : 'Full — no docks',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: slotColor,
-                        ),
-                      ),
-                      if (distanceLabel != null) ...[
-                        const SizedBox(width: 8),
-                        Text('·', style: AppTextStyle.subheading),
-                        const SizedBox(width: 8),
-                        Text(
-                          distanceLabel!,
-                          style: AppTextStyle.subheading.copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 10),
-
-            // return button or full badge
-            if (hasSlots)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 9,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.primary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.primary.withOpacity(0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Return',
-                      style: TextStyle(
-                        color: AppColor.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColor.white,
-                      size: 14,
-                    ),
-                  ],
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 9,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.border.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  'Full',
-                  style: TextStyle(
-                    color: AppColor.textSecondary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

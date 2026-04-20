@@ -5,44 +5,29 @@ import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/utils/timer_util.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
+import 'package:velo_toulose/models/ride.dart';
 
-class TimerSection extends StatefulWidget {
+class TimerSection extends StatelessWidget {
   const TimerSection({super.key});
 
-  @override
-  State<TimerSection> createState() => _TimerSectionState();
-}
-
-class _TimerSectionState extends State<TimerSection> {
-  Timer? _ticker;
-
-
-  @override
-  void dispose() {
-    _ticker?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     // watch so widget rebuilds when ride changes
     final ride = context.watch<RideViewModel>().activeRide;
-    final time = TimeUtils(activeRide: ride); // fresh every second
+    final time = TimeUtils(activeRide: ride);
+    final String runtime = time.timerLabel;
     final isOvertime = time.isOvertime;
     final color = isOvertime ? AppColor.red : AppColor.primary;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isOvertime
-              ? [AppColor.red.withOpacity(0.08), AppColor.red.withOpacity(0.03)]
-              : [AppColor.primary.withOpacity(0.08), AppColor.primaryLight],
-        ),
+        color: isOvertime
+            ? const Color.fromARGB(46, 164, 29, 19)
+            : AppColor.primaryLight,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+        border: Border.all(color: AppColor.primary, width: 1.5),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -52,9 +37,9 @@ class _TimerSectionState extends State<TimerSection> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: AppColor.primaryLight,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: color.withOpacity(0.2)),
+                border: Border.all(color:AppColor.primaryLight),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -83,31 +68,30 @@ class _TimerSectionState extends State<TimerSection> {
 
             const SizedBox(height: 20),
 
-
-              Text(
-                time.timerLabel,
-                style: TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                  letterSpacing: -2,
-                  height: 1,
-                ),
+            Text(
+              runtime,
+              style: TextStyle(
+                fontSize: 64,
+                fontWeight: FontWeight.w800,
+                color: color,
+                letterSpacing: -2,
+                height: 1,
               ),
-            
+            ),
+
             const SizedBox(height: 4),
             Text(
               'mm : ss',
               style: TextStyle(
                 fontSize: 11,
-                color: color.withOpacity(0.5),
+                color: AppColor.primary,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 3,
               ),
             ),
 
             const SizedBox(height: 16),
-            Container(height: 1, color: color.withOpacity(0.1)),
+            Container(height: 1, color: AppColor.primary),
             const SizedBox(height: 16),
 
             // status label
@@ -148,5 +132,6 @@ class _TimerSectionState extends State<TimerSection> {
         ),
       ),
     );
+    ;
   }
 }

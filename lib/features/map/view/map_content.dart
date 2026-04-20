@@ -71,7 +71,7 @@ void _goToSearch() {
   void _goRideActive() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => RideActiveScreen()),
+      MaterialPageRoute(builder: (_) => RideActiveScreen(mapController: _mapController,)),
     );
   }
 

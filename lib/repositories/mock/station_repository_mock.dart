@@ -39,7 +39,7 @@ class StationRepositoryMock implements StationRepostiory{
 
     // mock bikes — in real app this comes from API
   final allSlots = {
-      '1': _buildSlots(stationId: '1', total: 10, occupied: 5),
+      '1': _buildSlots(stationId: '1', total: 10, occupied: 10),
       '2': _buildSlots(stationId: '2', total: 8, occupied: 2),
       '3': _buildSlots(stationId: '3', total: 6, occupied: 0),
     };

@@ -236,9 +236,7 @@ class _PaymentOptionTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColor.primary
-                    : AppColor.primaryLight,
+                color: AppColor.primaryLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: AppColor.primary, size: 22),
