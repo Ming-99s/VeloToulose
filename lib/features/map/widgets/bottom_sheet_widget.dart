@@ -10,6 +10,7 @@ import 'package:velo_toulose/features/map/widgets/empty_dock.dart';
 import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/booking/view/payment_method_screen.dart';
+import 'package:velo_toulose/models/bike.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class BottomSheetWidget extends StatelessWidget {
@@ -45,13 +46,13 @@ Future<void> endRide(BuildContext context) async {
     }
   }
 
-  void _toConfirmRide(BuildContext context, station, bike) {
+  void _toConfirmRide(BuildContext context, Station station,Bike bike) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PaymentMethodScreen(
           station: station,
           bikeId: bike.bikeId,
-          slotLabel: bike.slotId ?? '-',
+          slotLabel: bike.slotId!,
         ),
       ),
     );
@@ -63,8 +64,8 @@ Future<void> endRide(BuildContext context) async {
     final hasActiveRide = rideViewModel.hasActiveRide;
 
     // empty slots where user can return their bike
-    final emptySlots = viewModel.getDockAt(station);
-    final availableBikes = viewModel.getBikesAt(station);
+    final emptySlots = viewModel.getDockAt();
+    final availableBikes = viewModel.getBikesAt();
 
     return Container(
       decoration: const BoxDecoration(

@@ -1,4 +1,5 @@
 import 'package:latlong2/latlong.dart';
+import 'package:velo_toulose/core/enum/slot_status.dart';
 
 import 'slot.dart';
 
@@ -18,13 +19,9 @@ class Station {
   });
 
   // Derived attribute — computed from slots, never stored
-  int get availableBikes => slots.where((slot) => slot.bikeId != null).length;
-  int get emptyDock => slots.where((s) => s.isEmpty()).length;
 
-  List<Slot> getAvailableBikes() =>
-      slots.where((slot) => slot.bikeId != null).toList();
-
-  List<Slot> getFreeSlots() => slots.where((slot) => slot.isEmpty()).toList();
+  List<Slot> getAvailableBikes() => slots.where((s) => s.isOccupied).toList();
+  List<Slot> getFreeSlots() => slots.where((s) => s.isEmpty).toList();
 
   Station copyWith({
     String? stationId,

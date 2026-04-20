@@ -54,8 +54,6 @@ class StationRepositoryMock implements StationRepostiory {
       final slotNumber = i + 1;
       return Slot(
         slotId: '${stationId}_slot_$slotNumber',
-        slotNumber: slotNumber,
-        status: hasBike ? SlotStatus.occupied : SlotStatus.free,
         stationId: stationId,
         bikeId: hasBike ? 'bike_${stationId}_$slotNumber' : null,
       );
@@ -73,7 +71,7 @@ class StationRepositoryMock implements StationRepostiory {
     // update slot — free it
     final updatedSlots = station.slots.map((slot) {
       if (slot.bikeId == bikeId) {
-        return slot.copyWith(status: SlotStatus.free, bikeId: null);
+        return slot.copyWith(clearBike: true);
       }
       return slot;
     }).toList();
@@ -93,10 +91,10 @@ class StationRepositoryMock implements StationRepostiory {
 
     // occupy first free slot
     final updatedSlots = station.slots.map((slot) {
-      if (!placed && slot.isEmpty()) {
+      if (!placed && slot.isEmpty) {
         placed = true;
         placedSlotId = slot.slotId;
-        return slot.copyWith(status: SlotStatus.occupied, bikeId: bikeId);
+        return slot.copyWith(bikeId: bikeId);
       }
       return slot;
     }).toList();

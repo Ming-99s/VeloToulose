@@ -46,7 +46,7 @@ class StationTile extends StatelessWidget {
                   Text(station.name, style: AppTextStyle.cardTitle),
                   const SizedBox(height: 2),
                   Text(
-                    '${station.availableBikes} bikes available',
+                    '${station.getAvailableBikes().length} bikes available',
                     style: AppTextStyle.subheading,
                   ),
                 ],
