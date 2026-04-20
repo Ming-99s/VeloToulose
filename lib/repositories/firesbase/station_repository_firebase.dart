@@ -72,17 +72,14 @@ class StationRepositoryFirebase implements StationRepostiory {
         .orderByChild('stationId')
         .equalTo(stationId)
         .get();
-    if (!snapshot.exists || snapshot.value == null) return [];
+    if (!snapshot.exists) return [];
 
-    final raw = snapshot.value;
-    if (raw is! Map) return [];
+    final bikesMap = Map<String, dynamic>.from(snapshot.value as Map);
 
-    return raw.entries.map((entry) {
+    return bikesMap.entries.map((entry) {
+      final id = entry.key;
       final data = Map<String, dynamic>.from(entry.value as Map);
-      return Bike(
-        bikeId: entry.key as String,
-        slotId: data['slotId'] as String?,
-      );
+      return Bike(bikeId: id, slotId: data['slotId'] as String?);
     }).toList();
   }
 

@@ -22,7 +22,7 @@ class BuildStationMarkerWidget extends StatelessWidget {
         children: [
           Icon(hasActiveRide ? Icons.dock : Icons.pedal_bike, color: Colors.white, size: 20),
           Text(
-            hasActiveRide ?  station.emptyDock.toString() : station.availableBikes.toString() ,
+            hasActiveRide ?  station.getFreeSlots().length.toString() : station.getAvailableBikes().length.toString() ,
             style: AppTextStyle.buttonText,
           ),
         ],

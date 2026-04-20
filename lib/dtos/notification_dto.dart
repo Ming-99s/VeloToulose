@@ -1,4 +1,3 @@
-
 import 'package:velo_toulose/models/notification.dart';
 
 class NotificationDto {
@@ -25,7 +24,7 @@ class NotificationDto {
     );
   }
 
-  Map<String, dynamic> toJson(AppNotification notification) {
+  static Map<String, dynamic> toJson(AppNotification notification) {
     return {
       userIdKey: notification.userId,
       typeKey: notification.type,

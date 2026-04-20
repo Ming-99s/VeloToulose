@@ -59,12 +59,12 @@ class MapViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Bike> getBikesAt(Station station) {
+  List<Bike> getBikesAt() {
     return bikes.toList();
   }
 
-  List<Slot> getDockAt(Station station) {
-    return station.slots.where((s) => s.isEmpty()).toList();
+  List<Slot> getDockAt() {
+    return slots.where((s) => s.isEmpty).toList();
   }
 
   double? getDistanceTo(Station station) {

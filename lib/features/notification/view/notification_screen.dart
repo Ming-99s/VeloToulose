@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
+import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
+import 'package:velo_toulose/features/notification/view/ride_summary.dart';
 import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
-import 'package:velo_toulose/features/notification/view/receipt_detail_screen.dart';
 import 'package:velo_toulose/features/notification/widgets/receipt_card.dart';
 
 class NotificationScreen extends StatelessWidget {
@@ -12,6 +15,8 @@ class NotificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<NotificationViewModel>();
+    final userVm = context.read<AuthViewModel>();
+    final userPassVm = context.read<UserPassViewModel>();
 
     return Scaffold(
       backgroundColor: AppColor.background,
@@ -25,10 +30,10 @@ class NotificationScreen extends StatelessWidget {
         title: const Text('Notifications', style: AppTextStyle.heading),
         centerTitle: true,
         actions: [
-          // "Mark all read" button — only show if there are unread
           if (vm.unreadCount > 0)
             TextButton(
-              onPressed: () => vm.markAllAsRead(),
+              onPressed: () =>
+                  vm.markAllAsRead(userVm.currentUser!.userId), // pass userId
               child: Text(
                 'Read all',
                 style: AppTextStyle.subheading.copyWith(
@@ -48,28 +53,38 @@ class NotificationScreen extends StatelessWidget {
                 final notification = vm.notifications[index];
                 return ReceiptCard(
                   notification: notification,
-                  onTap: () {
-                    // Mark as read when tapped
+                  onTap: (){
+                    
+                    final passName = userPassVm.activePass?.type.name;
+
                     if (!notification.isRead) {
-                      vm.markAsRead(notification.notificationId);
+                      vm.markAsRead(
+                        notification.notificationId,
+                        userVm.currentUser!.userId, // pass userId
+                      );
                     }
-                    // Open receipt detail screen
-                    final ride = vm.getRideForNotification(
-                      notification.notificationId,
-                    );
-                    if (ride != null) {
-                      final hasPass = vm.hadPassForNotification(
+
+                    // only ride receipts have ride data
+                    if (notification.type == 'payment_receipt') {
+                      final ride = vm.getRideForNotification(
                         notification.notificationId,
                       );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ReceiptDetailScreen(
-                            ride: ride,
-                            hasPass: hasPass,
+                      if (ride != null) {
+                        final hasPass = vm.hadPassForNotification(
+                          notification.notificationId,
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            // ← changed to RideSummaryScreen
+                            builder: (_) => RideSummaryScreen(
+                              ride: ride,
+                              hasPass: hasPass,
+                              plan: passName ?? 'unknow',
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     }
                   },
                 );
