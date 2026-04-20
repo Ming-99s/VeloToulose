@@ -5,6 +5,7 @@ import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/auth/widgets/buildSwitch.dart';
+import 'package:velo_toulose/features/profile/profile_screen.dart';
 import 'package:velo_toulose/main_common.dart';
 
 enum AuthMode { login, register }

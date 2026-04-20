@@ -9,7 +9,7 @@ class User {
   final String email;
   final String phone;
   final String password;
-  final Pass? pass; 
+  final String? passid; 
 
   const User({
     required this.userId,
@@ -19,16 +19,15 @@ class User {
     required this.email,
     required this.phone,
     required this.password,
-    this.pass, 
+    this.passid, 
   });
 
   String get fullName => '$firstName $lastName';
 
   bool get hasImage => image.toString().isNotEmpty;
 
-  bool get hasActivPass => pass != null && pass!.isValid();
+  bool get hasActivPass => passid != null;
 
-  PassType get planStatus => pass != null ? pass!.type : PassType.payAsYouGo;
 
   User copyWith({
     String? userId,
@@ -39,7 +38,7 @@ class User {
     String? phone,
     String? password,
     double? balance,
-    Pass? pass,
+    String? passid,
     bool clearPass = false,
   }) {
     return User(
@@ -50,7 +49,7 @@ class User {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       password: password ?? this.password,
-      pass: clearPass ? null : pass ?? this.pass,
+      passid: clearPass ? null : passid ?? this.passid,
     );
   }
 }

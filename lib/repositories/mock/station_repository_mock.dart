@@ -29,7 +29,6 @@ class StationRepositoryMock implements StationRepostiory{
       final slotNumber = i + 1;
       return Bike(
         bikeId: 'bike_${stationId}_$slotNumber',
-        type: 'Classic',
         slotId: '${stationId}_slot_$slotNumber',
       );
     });

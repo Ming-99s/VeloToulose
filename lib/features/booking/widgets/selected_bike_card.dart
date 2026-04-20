@@ -3,13 +3,11 @@ import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 
 class SelectedBikeCard extends StatelessWidget {
-  final String bikeType;
   final String bikeId;
   final String slotLabel;
 
   const SelectedBikeCard({
     super.key,
-    required this.bikeType,
     required this.bikeId,
     required this.slotLabel,
   });
@@ -33,7 +31,7 @@ class SelectedBikeCard extends StatelessWidget {
               Text('SELECTED BIKE', style: AppTextStyle.label),
               const SizedBox(height: 4),
               Text(
-                '$bikeType #$bikeId',
+                '#$bikeId',
                 style: AppTextStyle.cardTitle.copyWith(fontSize: 18),
               ),
             ],

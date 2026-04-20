@@ -42,10 +42,10 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  final List<Widget> _page = [MapScreen(), ProfileScreen()];
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<MapViewModel>();
+    final List<Widget> page = [MapScreen(), ProfileScreen()];
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
           children: [
             IndexedStack(
               index: _selectedIndex,
-              children: _page,
+              children: page,
             ),
 
          if (viewModel.selectedStation != null)
@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> {
                   maxChildSize: 0.8,
                   snap: true,
                   snapSizes: const [0.0, 0.4, 0.8],
-                  builder: (context, scrollController) {
+                  builder: (_, scrollController) {
                     return NotificationListener<
                       DraggableScrollableNotification
                     >(

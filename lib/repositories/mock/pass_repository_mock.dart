@@ -7,6 +7,13 @@ import '../abstract/pass_repository.dart';
 class PassRepositoryMock implements  PassRepository{
 
   @override
+  Future<Pass?> getPassById(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final allPasses = await fetchPass();
+    return allPasses.where((p) => p.passId == id).firstOrNull;
+  }
+
+  @override
   Future<List<Pass>> fetchPass() async {
     await Future.delayed(const Duration(seconds: 1));
 

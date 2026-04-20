@@ -12,6 +12,7 @@ class UserRepositoryMock implements UserRepository {
       phone: '012345678',
       password: '1234',
       image: Uri.parse(''),
+      
     ),
   ];
 

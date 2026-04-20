@@ -88,7 +88,7 @@ class BikeTile extends StatelessWidget {
                 children: [
                   Text('# ${bike.bikeId}', style: AppTextStyle.cardTitle),
                   Text(
-                    '#${bike.slotId!} • ${bike.type}',
+                    '#${bike.slotId!}',
                     style: AppTextStyle.pricePeriod,
                   ),
                 ],

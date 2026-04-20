@@ -1,53 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/core/enum/pass_plans.dart';
+import 'package:velo_toulose/core/enum/pass_type.dart';
 import 'package:velo_toulose/models/pass.dart';
-import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
 
 class PassViewModel extends ChangeNotifier {
-  final PassRepository _repository;
+  // static plans — no loading, no repo
+  final List<PassPlan> plans = kPassPlans;
 
-  PassViewModel({required PassRepository repository}) : _repository = repository;
-
-  List<Pass> _passes = [];
-  List<Pass> get passes => _passes;
-
-  int _selectedIndex = 2; // default to Year Pass
+  int _selectedIndex = 2;
   int get selectedIndex => _selectedIndex;
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  PassPlan get selectedPlan => plans[_selectedIndex];
 
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
+  // build a real Pass object from the selected plan
+  Pass buildSelectedPass() {
+    final plan = selectedPlan;
+    final now = DateTime.now();
 
-  Pass? get selectedPass =>
-      _passes.isNotEmpty ? _passes[_selectedIndex] : null;
-
-  // The pass the user has activated 
-  Pass? _activePass;
-  Pass? get activePass => _activePass;
-
-  bool get hasActivePass => _activePass != null;
-
-  void activatePass() {
-    if (selectedPass != null) {
-      _activePass = selectedPass;
-      notifyListeners();
+    Duration validity;
+    switch (plan.type) {
+      case PassType.daily:
+        validity = const Duration(hours: 24);
+        break;
+      case PassType.weekly:
+        validity = const Duration(days: 30);
+        break;
+      case PassType.annual:
+        validity = const Duration(days: 365);
+        break;
+      default:
+        validity = const Duration(hours: 24);
     }
-  }
 
-  Future<void> fetchPasses() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      _passes = await _repository.fetchPass();
-    } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    return Pass(
+      passId: 'pass_${plan.type.name}_${now.millisecondsSinceEpoch}',
+      type: plan.type,
+      startDate: now,
+      endDate: now.add(validity),
+      price: plan.price,
+      isActive: true,
+    );
   }
 
   void selectPass(int index) {
