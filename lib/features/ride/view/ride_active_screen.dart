@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/features/ride/view/station_list.dart';
+import 'package:velo_toulose/features/ride/view/timer_section.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
-import 'package:velo_toulose/features/ride/widgets/station_list_section.dart';
-import 'package:velo_toulose/features/ride/widgets/timer_section.dart';
 
 class RideActiveScreen extends StatelessWidget {
-  const RideActiveScreen({super.key});
+  const RideActiveScreen({super.key,required this.mapController});
+  final MapController mapController;
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +22,14 @@ class RideActiveScreen extends StatelessWidget {
         child: Column(
           children: [
             // custom top bar
-            Padding(
+            Container(
+              width: double.infinity,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.of(context).maybePop(),
+                    onTap: () => Navigator.of(context).pop(),
                     child: Container(
                       width: 42,
                       height: 42,
@@ -35,7 +39,7 @@ class RideActiveScreen extends StatelessWidget {
                         border: Border.all(color: AppColor.border),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: const Color.fromARGB(53, 107, 114, 128),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -48,47 +52,15 @@ class RideActiveScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Active Ride', style: AppTextStyle.cardTitle),
-                      if (ride != null)
-                        Text(
-                          'Bike #${ride.bikeId}',
-                          style: AppTextStyle.subheading.copyWith(fontSize: 12),
-                        ),
-                    ],
-                  ),
-                  const Spacer(),
-                  // live indicator
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF16A34A).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: const Color(0xFF16A34A).withOpacity(0.2),
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Text(
+                        'Active Ride',
+                        style: AppTextStyle.heading,
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _PulseDot(),
-                        const SizedBox(width: 6),
-                        const Text(
-                          'LIVE',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF16A34A),
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],
@@ -153,8 +125,7 @@ class RideActiveScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // stations list
-                    const Expanded(child: StationListSection()),
+                    Expanded(child: StationListSection(mapController: mapController,)),
 
                     const SizedBox(height: 16),
                   ],
@@ -162,52 +133,6 @@ class RideActiveScreen extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// animated green pulse dot for LIVE indicator
-class _PulseDot extends StatefulWidget {
-  @override
-  State<_PulseDot> createState() => _PulseDotState();
-}
-
-class _PulseDotState extends State<_PulseDot>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _anim = Tween<double>(
-      begin: 0.4,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _anim,
-      child: Container(
-        width: 7,
-        height: 7,
-        decoration: const BoxDecoration(
-          color: Color(0xFF16A34A),
-          shape: BoxShape.circle,
         ),
       ),
     );
