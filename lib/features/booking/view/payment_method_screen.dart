@@ -3,11 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
-import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
-import 'package:velo_toulose/features/booking/widgets/selected_bike_card.dart';
-import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
 import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
-import 'package:velo_toulose/features/profile/widgets/pass_card.dart' as profile;
+import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
+import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
+import 'package:velo_toulose/features/booking/widgets/selected_bike_card.dart';
+import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
+import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/station.dart';
 
 enum PaymentMethodOption { payAsYouGo, selectPass }
@@ -30,11 +31,49 @@ class PaymentMethodScreen extends StatefulWidget {
 
 class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   PaymentMethodOption _selected = PaymentMethodOption.payAsYouGo;
+  Pass? _selectedPass;
+
+  static const double unlockFee = 2.50;
+
+  double get totalPrice => _selectedPass != null ? 0.0 : unlockFee;
+  String get priceLabel =>
+      _selectedPass != null ? 'Free' : '€${unlockFee.toStringAsFixed(2)}';
+
+  Future<void> _goToPassSelection() async {
+    final Pass? result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            PassView(bikeId: widget.bikeId, station: widget.station),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedPass = result;
+        _selected = PaymentMethodOption.selectPass;
+      });
+    }
+  }
+
+  void _confirmBooking(Pass? activePass) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BookingSuccessScreen(
+          bikeId: widget.bikeId,
+          stationName: widget.station.name,
+          stationId: widget.station.stationId,
+          usedPass:
+              activePass ?? _selectedPass, // use active pass or selected pass
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final passVm = context.watch<PassViewModel>();
-    final hasPass = passVm.hasActivePass;
+    final userPassVm = context.watch<UserPassViewModel>();
+    final hasActivePass = userPassVm.hasActivePass;
+    final activePass = userPassVm.activePass;
 
     return Scaffold(
       backgroundColor: AppColor.background,
@@ -59,124 +98,98 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             children: [
               const SizedBox(height: 24),
 
-              // Booking summary label
-              Center(
-                child: Text('BOOKING SUMMARY', style: AppTextStyle.label),
-              ),
+              Center(child: Text('BOOKING SUMMARY', style: AppTextStyle.label)),
               const SizedBox(height: 8),
               Center(
-                child: Text(
-                  widget.station.name,
-                  style: AppTextStyle.heading,
-                ),
+                child: Text(widget.station.name, style: AppTextStyle.heading),
               ),
               const SizedBox(height: 20),
 
-              // Selected Bike Card 
               SelectedBikeCard(
                 bikeId: widget.bikeId,
                 slotLabel: widget.slotLabel,
               ),
               const SizedBox(height: 28),
 
-              if (hasPass) ...[
-                Text(
-                  'YOUR PASS',
-                  style: AppTextStyle.label.copyWith(color: AppColor.textSecondary),
+              Text(
+                'PAYMENT METHOD',
+                style: AppTextStyle.label.copyWith(
+                  color: AppColor.textSecondary,
                 ),
-                const SizedBox(height: 12),
-                profile.PassCard(pass: passVm.activePass!),
-              ] else ...[
-                Text(
-                  'PAYMENT METHOD',
-                  style: AppTextStyle.label.copyWith(color: AppColor.textSecondary),
-                ),
-                const SizedBox(height: 12),
+              ),
+              const SizedBox(height: 12),
 
-                // Pay-as-you-go option
+              // if user has active pass show their pass card only
+              if (hasActivePass) ...[
+                PassCard(pass: activePass!,onPressed: ()=> _goToPassSelection(),),
+                const SizedBox(height: 8),
+
+              ] else ...[
+                // user has no pass — show payment options
                 _PaymentOptionTile(
                   icon: Icons.directions_bike,
                   title: 'Pay-as-you-go',
-                  subtitle: '€2.50 per ride. First 30 minutes free,\nthen €0.05/min.',
+                  subtitle:
+                      '€2.50 per ride. First 30 min free,\nthen €0.05/min.',
                   isSelected: _selected == PaymentMethodOption.payAsYouGo,
-                  onTap: () => setState(() => _selected = PaymentMethodOption.payAsYouGo),
+                  onTap: () => setState(() {
+                    _selected = PaymentMethodOption.payAsYouGo;
+                    _selectedPass = null;
+                  }),
                 ),
                 const SizedBox(height: 12),
 
-                // Select a Pass option
                 _PaymentOptionTile(
                   icon: Icons.card_membership,
                   title: 'Select a Pass',
-                  subtitle: 'Unlock unlimited rides with a daily,\nweekly, or monthly pass.',
+                  subtitle: 'Rides with a daily, weekly, or annual pass.',
                   isSelected: _selected == PaymentMethodOption.selectPass,
-                  onTap: () => setState(() => _selected = PaymentMethodOption.selectPass),
+                  onTap: _goToPassSelection,
                 ),
               ],
 
               const Spacer(),
 
-              if (!hasPass) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Booking Fee', style: AppTextStyle.subheading),
-                    Text('€2.50', style: AppTextStyle.subheading),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Total Today',
-                      style: AppTextStyle.cardTitle.copyWith(fontSize: 18),
-                    ),
-                    Text('€2.50', style: AppTextStyle.priceTag),
-                  ],
-                ),
-                const SizedBox(height: 20),
-              ],
+              // price summary
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Booking Fee', style: AppTextStyle.subheading),
+                  Text(
+                    hasActivePass
+                        ? 'Free'
+                        : _selected == PaymentMethodOption.selectPass &&
+                              _selectedPass != null
+                        ? 'Free'
+                        : '€${unlockFee.toStringAsFixed(2)}',
+                    style: AppTextStyle.subheading,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Today',
+                    style: AppTextStyle.cardTitle.copyWith(fontSize: 18),
+                  ),
+                  Text(
+                    hasActivePass ? 'Free' : priceLabel,
+                    style: AppTextStyle.priceTag,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
 
-              // Confirm button
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: AppButton(
                   label: 'Confirm Booking',
                   isprimaryColor: true,
                   trailingIcon: Icons.arrow_forward,
-                  onPressed: () {
-                    if (hasPass) {
-                      // Has a pass go straight to booking success
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => BookingSuccessScreen(
-                            bikeId: widget.bikeId,
-                            stationName: widget.station.name,
-                            stationId: widget.station.stationId,
-                          ),
-                        ),
-                      );
-                    } else if (_selected == PaymentMethodOption.selectPass) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PassView(
-                            bikeId: widget.bikeId,
-                            station: widget.station,
-                          ),
-                        ),
-                      );
-                    } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => BookingSuccessScreen(
-                            bikeId: widget.bikeId,
-                            stationName: widget.station.name,
-                            stationId: widget.station.stationId,
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: () =>
+                      _confirmBooking(hasActivePass ? activePass : null),
                 ),
               ),
             ],
@@ -219,20 +232,18 @@ class _PaymentOptionTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Icon container
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColor.primary.withValues(alpha: 0.1)
+                    ? AppColor.primary
                     : AppColor.primaryLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: AppColor.primary, size: 22),
             ),
             const SizedBox(width: 12),
-            // Text
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +254,6 @@ class _PaymentOptionTile extends StatelessWidget {
                 ],
               ),
             ),
-            // Radio indicator
             Container(
               width: 24,
               height: 24,

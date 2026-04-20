@@ -13,7 +13,6 @@ class AuthViewModel extends ChangeNotifier {
 
   bool get isLoggedIn => currentUser != null;
 
-  // called when user taps Login button
   Future<bool> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
       error = 'Please fill in all fields';
@@ -37,7 +36,6 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  // called when user taps Register button
   Future<bool> register(
     String firstName,
     String lastName,
@@ -72,6 +70,13 @@ class AuthViewModel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ← new method — updates user locally and in repository
+  Future<void> updateUser(User updated) async {
+    currentUser = updated;
+    notifyListeners();
+    await _repository.updateUser(updated);
   }
 
   void signOut() {

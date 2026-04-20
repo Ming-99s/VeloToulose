@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
+import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/models/pass.dart';
 
 class PassCard extends StatelessWidget {
   final Pass pass;
+  final Function() onPressed;
 
-  const PassCard({super.key, required this.pass});
+  const PassCard({super.key, required this.pass,required this.onPressed});
 
   String get _planName {
     switch (pass.type.name) {
@@ -22,8 +24,18 @@ class PassCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day.toString().padLeft(2, '0')}, ${date.year}';
   }
@@ -32,7 +44,7 @@ class PassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      padding: EdgeInsets.fromLTRB(30, 20, 30, 10),
       decoration: BoxDecoration(
         color: AppColor.background,
         borderRadius: BorderRadius.circular(30),
@@ -72,22 +84,38 @@ class PassCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 10),
-          Column(
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Renewal Date'.toUpperCase(),
-                style: TextStyle(
-                  color: AppColor.textSecondary,
-                  fontSize: 12,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Expired Date'.toUpperCase(),
+                    style: TextStyle(
+                      color: AppColor.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    _formatDate(pass.endDate),
+                    style: TextStyle(
+                      color: AppColor.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                _formatDate(pass.endDate),
-                style: TextStyle(
-                  color: AppColor.textPrimary,
-                  fontWeight: FontWeight.w600,
+              TextButton(
+                onPressed: onPressed,
+                child: Text(
+                  'Manange',
+                  style: TextStyle(
+                    color: AppColor.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],

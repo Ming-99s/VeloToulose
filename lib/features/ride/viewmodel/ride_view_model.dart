@@ -15,15 +15,6 @@ class RideViewModel extends ChangeNotifier {
 
   bool get hasActiveRide => activeRide != null;
 
-  // formatted timer string e.g. "00 : 12"
-  String get timerLabel {
-    if (activeRide == null) return '00 : 00';
-    final secs = activeRide!.duration;
-    final mins = secs ~/ 60;
-    final remaining = secs % 60;
-    return '${mins.toString().padLeft(2, '0')} : ${remaining.toString().padLeft(2, '0')}';
-  }
-
   // called when user confirms booking
   Future<void> startRide({
     required String userId,

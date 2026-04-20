@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/core/utils/timer_util.dart';
 import 'package:velo_toulose/features/map/view/search_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
@@ -70,7 +71,7 @@ void _goToSearch() {
   void _goRideActive() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const RideActiveScreen()),
+      MaterialPageRoute(builder: (_) => RideActiveScreen()),
     );
   }
 
@@ -160,7 +161,7 @@ void _goToSearch() {
         // active ride banner — only show when ride is active
         if (rideViewModel.hasActiveRide)
           _buildRideActiveBanner(
-            timerLabel: rideViewModel.timerLabel,
+            timerLabel: TimeUtils(activeRide: rideViewModel.activeRide).timerLabel,
             onTap: _goRideActive,
           ),
 
