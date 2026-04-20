@@ -29,6 +29,42 @@ Key aspects of the project include:
 
 ---
 
+## Folder Structure
+
+```
+lib/
+├── main_dev.dart              # App entry point
+├── main_common.dart           # Common app bootstrap
+├── core/
+│   ├── constant/              # App-wide constants (colors, text styles)
+│   ├── enum/                  # Shared enumerations (BikeStatus, PassType, etc.)
+│   └── widgets/               # Reusable UI components (AppButton, Navbar)
+├── models/                    # Domain models (Bike, Station, Ride, Pass, User, ...)
+├── dtos/                      # Data Transfer Objects with fromJson/toJson
+├── repositories/              # Abstract interfaces and mock/local implementations
+└── features/
+    ├── splash/                # Splash screen with Lottie animation
+    ├── onBoarding/            # Onboarding flow
+    ├── auth/                  # Authentication
+    ├── map/                   # Map view, station markers, bike selection
+    ├── ride/                  # Active ride management
+    ├── booking/               # Bike booking flow
+    ├── profile/               # User profile, passes, balance
+    └── notification/          # In-app notifications
+```
+
+Each feature follows the MVVM pattern:
+
+```
+feature/
+├── view/         # UI screens and widgets
+├── viewmodels/   # Business logic and state (ChangeNotifier)
+└── widgets/      # Feature-scoped reusable widgets
+```
+
+
+---
+
 ## Demo
 
 > Demo video add here.
