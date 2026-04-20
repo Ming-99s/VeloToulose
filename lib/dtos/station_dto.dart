@@ -1,14 +1,11 @@
-
-
 import 'package:latlong2/latlong.dart';
 import 'package:velo_toulose/models/slot.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class StationDto {
   static const String nameKey = 'name';
-  static const String location = 'location';
+  static const String locationKey = 'location';
   static const String capacityKey = 'capacity';
-  // availableBikes NOT stored — derived from slots
 
   static Station fromJson(
     String id,
@@ -17,24 +14,30 @@ class StationDto {
   ) {
     assert(json[nameKey] is String);
     assert(json[capacityKey] is int);
-    assert(json[location] is LatLng);
+    assert(json[locationKey] is Map);
 
+    final locationData = Map<String, dynamic>.from(json[locationKey] as Map);
 
     return Station(
       stationId: id,
-      name: json[nameKey],
-      location: json[location],
-      capacity: json[capacityKey],
-      slots: slots, // loaded separately from subcollection
+      name: json[nameKey] as String,
+      location: LatLng(
+        (locationData['lat'] as num).toDouble(),
+        (locationData['lng'] as num).toDouble(),
+      ),
+      capacity: json[capacityKey] as int,
+      slots: slots,
     );
   }
 
-  Map<String, dynamic> toJson(Station station) {
+  static Map<String, dynamic> toJson(Station station) {
     return {
       nameKey: station.name,
+      locationKey: {
+        'lat': station.location.latitude,
+        'lng': station.location.longitude,
+      },
       capacityKey: station.capacity,
-      // slots stored in subcollection — not here
-      // availableBikes is derived — not stored
     };
   }
 }

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/enum/pass_plans.dart';
 import 'package:velo_toulose/core/enum/pass_type.dart';
 import 'package:velo_toulose/models/pass.dart';
+import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
 
 class PassViewModel extends ChangeNotifier {
   // static plans — no loading, no repo
   final List<PassPlan> plans = kPassPlans;
+  final PassRepository passRepository;
+
+  PassViewModel({required this.passRepository});
 
   int _selectedIndex = 2;
   int get selectedIndex => _selectedIndex;

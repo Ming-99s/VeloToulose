@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/models/ride.dart';
 
 class SubscriptionMethodWidget extends StatelessWidget {
-  final bool isMonthlyPass;
+  final Ride ride;
+  final bool hasPass;
+  final String plan;
 
-  const SubscriptionMethodWidget({super.key, required this.isMonthlyPass});
+  const SubscriptionMethodWidget({
+    super.key,
+    required this.ride,
+    required this.hasPass,
+    required this.plan,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const int freeMinutes = 30;
+
+    final duration = ride.duration;
+    final isOvertime = ride.isOvertime();
+    final overtimeMinutes = isOvertime ? duration - freeMinutes : 0;
+    final cost = ride.calculateCost(hasPass: hasPass);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
       decoration: BoxDecoration(
@@ -25,7 +40,8 @@ class SubscriptionMethodWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isMonthlyPass) ...[
+          if (hasPass) ...[
+            // pass holder — no unlock fee
             Row(
               children: [
                 Container(
@@ -37,11 +53,11 @@ class SubscriptionMethodWidget extends StatelessWidget {
                     color: AppColor.primary,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Text('MONTHLY PASS', style: AppTextStyle.label),
+                  child: Text(plan, style: AppTextStyle.buttonText),
                 ),
                 const Spacer(),
                 Text(
-                  'Included in your pass',
+                  'No unlock fee',
                   style: AppTextStyle.subheading.copyWith(
                     fontSize: 12,
                     color: AppColor.primary,
@@ -51,25 +67,46 @@ class SubscriptionMethodWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            Text(
-              'First 30 minutes included.',
-              style: AppTextStyle.feature.copyWith(fontSize: 13),
-            ),
-            Text(
-              'No charge applied.',
-              style: AppTextStyle.cardTitle.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+
+            // show overtime if applicable
+            if (isOvertime) ...[
+              _CostLine(
+                label: 'First 30 minutes',
+                price: 'Free',
+                priceColor: AppColor.primary,
+                note: 'Included in your pass',
               ),
-            ),
+              const SizedBox(height: 18),
+              _CostLine(
+                label: 'Additional $overtimeMinutes minutes',
+                price: '€${(overtimeMinutes * 0.05).toStringAsFixed(2)}',
+                note: '€0.05/min overtime',
+              ),
+            ] else ...[
+              Text(
+                'First 30 minutes included.',
+                style: AppTextStyle.feature.copyWith(fontSize: 13),
+              ),
+              Text(
+                'No charge applied.',
+                style: AppTextStyle.cardTitle.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+
             const SizedBox(height: 18),
             const Divider(color: AppColor.border, thickness: 1),
             const SizedBox(height: 14),
-            const _TotalRow(
-              amount: '\$0.00',
-              amountColor: AppColor.textSecondary,
+            _TotalRow(
+              amount: cost == 0 ? '€0.00' : '€${cost.toStringAsFixed(2)}',
+              amountColor: cost == 0
+                  ? AppColor.textSecondary
+                  : AppColor.primary,
             ),
           ] else ...[
+            // pay as you go
             Text(
               'COST BREAKDOWN',
               style: AppTextStyle.label.copyWith(
@@ -80,22 +117,37 @@ class SubscriptionMethodWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 22),
+
+            const _CostLine(
+              label: 'Unlock fee',
+              price: '€2.50',
+              note: 'Pay-as-you-go base fare',
+            ),
+            const SizedBox(height: 18),
+
             const _CostLine(
               label: 'First 30 minutes',
               price: 'Free',
               priceColor: AppColor.primary,
               note: 'Base fare included',
             ),
-            const SizedBox(height: 18),
-            const _CostLine(
-              label: 'Additional 12 minutes',
-              price: '\$0.60',
-              note: '\$0.05/min',
-            ),
+
+            if (isOvertime) ...[
+              const SizedBox(height: 18),
+              _CostLine(
+                label: 'Additional $overtimeMinutes minutes',
+                price: '€${(overtimeMinutes * 0.05).toStringAsFixed(2)}',
+                note: '€0.05/min overtime',
+              ),
+            ],
+
             const SizedBox(height: 18),
             const Divider(color: AppColor.border, thickness: 1),
             const SizedBox(height: 14),
-            const _TotalRow(amount: '\$0.60', amountColor: AppColor.primary),
+            _TotalRow(
+              amount: '€${cost.toStringAsFixed(2)}',
+              amountColor: AppColor.primary,
+            ),
           ],
         ],
       ),

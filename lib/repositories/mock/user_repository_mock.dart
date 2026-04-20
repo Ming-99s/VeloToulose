@@ -10,9 +10,7 @@ class UserRepositoryMock implements UserRepository {
       lastName: 'Lyming',
       email: 'Lyming4999@gmail.com',
       phone: '012345678',
-      password: '1234',
-      image: Uri.parse(''),
-      
+      password: '1234',      
     ),
   ];
 
@@ -51,7 +49,6 @@ class UserRepositoryMock implements UserRepository {
       email: email,
       phone: '',
       password: password,
-      image: Uri.parse(''),
     );
 
     _users.add(newUser);

@@ -20,6 +20,7 @@ class PassPlan {
   });
 }
 
+
 // static list — no repo needed
 const List<PassPlan> kPassPlans = [
   PassPlan(

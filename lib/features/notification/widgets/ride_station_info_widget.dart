@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/models/ride.dart';
 
 class RideStationInfoWidget extends StatelessWidget {
-  const RideStationInfoWidget({super.key});
+  final Ride ride;
+
+  const RideStationInfoWidget({super.key, required this.ride});
+
+  String _formatDuration(int seconds) {
+    final totalMinutes = seconds ~/ 60;
+
+    if (totalMinutes < 60) {
+      return '${totalMinutes} min';
+    }
+
+    final h = totalMinutes ~/ 60;
+    final m = totalMinutes % 60;
+
+    return '${h}h ${m}min';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +36,22 @@ class RideStationInfoWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         children: [
-          _InfoLine(label: 'Returned To', value: 'Station#732'),
-          SizedBox(height: 18),
-          _InfoLine(label: 'Duration', value: '42 minutes'),
-          SizedBox(height: 18),
-          _InfoLine(label: 'Bike ID', value: 'Kinetic #8234'),
+          _InfoLine(
+            label: 'Returned To',
+            value: 'Station #${ride.endStationId ?? '-'}',
+          ),
+          const SizedBox(height: 18),
+          _InfoLine(label: 'Duration', value: _formatDuration(ride.duration)),
+          const SizedBox(height: 18),
+          _InfoLine(label: 'Bike ID', value: '#${ride.bikeId}'),
+
         ],
       ),
     );
   }
+
 }
 
 class _InfoLine extends StatelessWidget {

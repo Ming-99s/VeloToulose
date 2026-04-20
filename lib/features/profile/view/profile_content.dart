@@ -59,17 +59,11 @@ class ProfileContent extends StatelessWidget {
                     ),
                     child: CircleAvatar(
                       radius: 60,
-                      backgroundColor: AppColor.textSecondary,
-                      backgroundImage: user?.hasImage == true
-                          ? NetworkImage(user!.image.toString())
-                          : null,
-                      child: user?.hasImage != true
-                          ? Icon(
+                      child: Icon(
                               Icons.person,
                               color: AppColor.background,
                               size: 50,
                             )
-                          : null,
                     ),
                   ),
                   if (vm.isLoggedIn)
