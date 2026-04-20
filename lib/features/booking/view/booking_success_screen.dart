@@ -134,8 +134,8 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                   label: 'Start Riding',
                   isprimaryColor: true,
                   trailingIcon: Icons.pedal_bike,
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>MyApp()));
+          onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),
               ),

@@ -16,7 +16,7 @@ class Slot {
     this.bikeId,
   });
 
-  bool isEmpty() => bikeId == null;
+  bool isEmpty() => bikeId == null || status == SlotStatus.free;
 
   Slot copyWith({
     String? slotId,
@@ -24,14 +24,13 @@ class Slot {
     SlotStatus? status,
     String? stationId,
     String? bikeId,
-    bool clearBikeId = false,
   }) {
     return Slot(
       slotId: slotId ?? this.slotId,
       slotNumber: slotNumber ?? this.slotNumber,
       status: status ?? this.status,
       stationId: stationId ?? this.stationId,
-      bikeId: clearBikeId ? null : bikeId ?? this.bikeId,
+      bikeId: bikeId ?? this.bikeId,
     );
   }
 }

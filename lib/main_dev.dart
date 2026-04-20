@@ -20,7 +20,7 @@ import 'package:velo_toulose/repositories/mock/user_repository_mock.dart';
 List<InheritedProvider> get devProviders {
   final StationRepostiory stationRepo = StationRepositoryMock();
   final UserRepository userRepository = UserRepositoryMock();
-  final RideRepository rideRepository = RideRepositoryMock();
+  final RideRepository rideRepository = RideRepositoryMock(stationRepo);
   final PassRepository passRepository = PassRepositoryMock();
 
   return [
@@ -49,7 +49,7 @@ ChangeNotifierProvider<UserPassViewModel>(
     ),
 
     ChangeNotifierProvider<RideViewModel>(
-      create: (_) => RideViewModel(rideRepository),
+      create: (context) => RideViewModel(rideRepository,context.read<MapViewModel>()),
     ),
 
     ChangeNotifierProvider<NotificationViewModel>(
