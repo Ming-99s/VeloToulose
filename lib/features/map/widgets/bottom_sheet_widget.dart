@@ -24,18 +24,20 @@ class BottomSheetWidget extends StatelessWidget {
   final MapViewModel viewModel;
   final ScrollController scrollController;
 
-  Future<void> endRide(BuildContext context) async {
+Future<void> endRide(BuildContext context) async {
     final endedRide = await context.read<RideViewModel>().endRide(
       station.stationId,
     );
 
-    // If ride ended successfully, create a payment receipt notification
     if (endedRide != null && context.mounted) {
       final hasPass = context.read<UserPassViewModel>().hasActivePass;
       context.read<NotificationViewModel>().addRideReceipt(
         endedRide,
         hasPass: hasPass,
       );
+      // reload this station's bikes and docks after return
+      await context.read<MapViewModel>().loadBikesByStation(station.stationId);
+      await context.read<MapViewModel>().loadDockByStation(station.stationId);
     }
 
     if (context.mounted) {

@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/models/ride.dart';
 import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
 
 class RideViewModel extends ChangeNotifier {
   final RideRepository _repository;
-
-  RideViewModel(this._repository);
+  final MapViewModel _mapViewModel; 
+  RideViewModel(this._repository, this._mapViewModel); 
 
   Ride? activeRide;
   bool isLoading = false;
@@ -15,7 +16,6 @@ class RideViewModel extends ChangeNotifier {
 
   bool get hasActiveRide => activeRide != null;
 
-  // called when user confirms booking
   Future<void> startRide({
     required String userId,
     required String bikeId,
@@ -32,6 +32,7 @@ class RideViewModel extends ChangeNotifier {
         startStationId: startStationId,
       );
       _startTimer();
+      await _mapViewModel.loadStations(); //refresh after booking
     } catch (e) {
       error = e.toString();
     } finally {
@@ -40,8 +41,6 @@ class RideViewModel extends ChangeNotifier {
     }
   }
 
-  /// Ends the current ride and returns the completed Ride with cost info.
-  /// Returns null if there was no active ride or an error occurred.
   Future<Ride?> endRide(String endStationId) async {
     if (activeRide == null) return null;
 
@@ -49,14 +48,16 @@ class RideViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      
       final endedRide = await _repository.endRide(
         activeRide!.rideId,
         endStationId,
       );
       activeRide = null;
       _stopTimer();
+      await _mapViewModel.loadStations(); //refresh after return
       notifyListeners();
-      return endedRide; // caller can use this to create a receipt
+      return endedRide;
     } catch (e) {
       error = e.toString();
       notifyListeners();
@@ -67,7 +68,6 @@ class RideViewModel extends ChangeNotifier {
     }
   }
 
-  // check if user already has an active ride on app start
   Future<void> checkActiveRide(String userId) async {
     activeRide = await _repository.getActiveRide(userId);
     if (activeRide != null) _startTimer();
@@ -76,9 +76,8 @@ class RideViewModel extends ChangeNotifier {
 
   void _startTimer() {
     _timer?.cancel();
-    // update every second for demo
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      notifyListeners(); // triggers timerLabel to recompute
+      notifyListeners();
     });
   }
 
