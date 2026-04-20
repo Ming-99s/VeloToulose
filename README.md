@@ -29,24 +29,6 @@ Key aspects of the project include:
 
 ---
 
-## Demo
-
-> Demo video add here.
-
----
-
-## Diagrams
-
-### UML Class Diagram
-
-> UML diagram add here.
-
-### Sequence Diagram
-
-> Sequence diagram add here.
-
----
-
 ## Folder Structure
 
 ```
@@ -79,6 +61,25 @@ feature/
 ├── viewmodels/   # Business logic and state (ChangeNotifier)
 └── widgets/      # Feature-scoped reusable widgets
 ```
+
+
+---
+
+## Demo
+
+> Demo video add here.
+
+---
+
+## Diagrams
+
+### UML Class Diagram
+
+> UML diagram add here.
+
+### Sequence Diagram
+
+> Sequence diagram add here.
 
 ---
 
