@@ -19,7 +19,7 @@ class RideRepositoryFirebase implements RideRepository {
     required String bikeId,
     required String startStationId,
   }) async {
-    _stationRepo.removeBikeFromStation(startStationId, bikeId);
+    await _stationRepo.removeBikeFromStation(startStationId, bikeId);
 
     final now = DateTime.now();
 
@@ -63,7 +63,7 @@ class RideRepositoryFirebase implements RideRepository {
       endTime: endTime,
     );
 
-    _stationRepo.addBikeToStation(endStationId, ride.bikeId);
+    await _stationRepo.addBikeToStation(endStationId, ride.bikeId);
 
     return endedRide;
   }

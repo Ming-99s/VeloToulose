@@ -9,18 +9,21 @@ import 'package:velo_toulose/features/onBoarding/view/on-boarding_screen.dart';
 import 'package:velo_toulose/features/profile/profile_screen.dart';
 import 'package:velo_toulose/features/splash/view/splash_screen.dart';
 
-void mainCommon(List<InheritedProvider> providers,{required bool onboardingDone}) {
-
+void mainCommon(
+  List<InheritedProvider> providers, {
+  required bool onboardingDone,
+}) {
   runApp(
     MultiProvider(
       providers: providers,
       child: MaterialApp(
-        debugShowCheckedModeBanner: false, 
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(fontFamily: 'PlusJakartaSans'),
-        home: onboardingDone ? 
-        SplashScreen(nextScreen: MyApp(),):
-        SplashScreen(nextScreen: OnBoardingScreen())
-        ),
+        // FIX: SplashScreen no longer takes nextScreen.
+        // The onboarding check is passed in so SplashScreen knows where
+        // to go after the animation if the user is NOT logged in.
+        home: SplashScreen(onboardingDone: onboardingDone),
+      ),
     ),
   );
 }
@@ -36,7 +39,6 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-
     setState(() {
       _selectedIndex = index;
     });
@@ -48,17 +50,13 @@ class _MyAppState extends State<MyApp> {
     final List<Widget> page = [MapScreen(), ProfileScreen()];
 
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: AppColor.background,
-        body: 
-        Stack(
-          children: [
-            IndexedStack(
-              index: _selectedIndex,
-              children: page,
-            ),
+      resizeToAvoidBottomInset: false,
+      backgroundColor: AppColor.background,
+      body: Stack(
+        children: [
+          IndexedStack(index: _selectedIndex, children: page),
 
-         if (viewModel.selectedStation != null)
+          if (viewModel.selectedStation != null)
             Positioned.fill(
               child: Visibility(
                 visible: _selectedIndex == 0,
@@ -89,19 +87,18 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Navbar(selectedIndex: _selectedIndex, onItemTapped: _onItemTapped))
-          ],
-        )
 
-        
-        
-      
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Navbar(
+              selectedIndex: _selectedIndex,
+              onItemTapped: _onItemTapped,
+            ),
+          ),
+        ],
+      ),
     );
   }
-
-
 }

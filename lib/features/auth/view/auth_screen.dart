@@ -5,7 +5,10 @@ import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/auth/widgets/buildSwitch.dart';
+import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/profile/profile_screen.dart';
+import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
 
 enum AuthMode { login, register }
@@ -69,12 +72,17 @@ class _AuthScreenState extends State<AuthScreen> {
       );
     }
 
-    if (success && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => MyApp()),
-      );
-    }
+if (success && mounted) {
+  final uid = viewModel.currentUser!.userId;
+  // reload user-specific data
+  await context.read<UserPassViewModel>().loadUserPass();
+  await context.read<NotificationViewModel>()
+    .loadNotifications(uid);
+  await context.read<RideViewModel>()
+    .checkActiveRide(uid);
+
+  Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp(),));
+}
   }
 
   @override

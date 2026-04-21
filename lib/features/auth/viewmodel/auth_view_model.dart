@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/models/user.dart';
 import 'package:velo_toulose/repositories/abstract/user_repository.dart';
 
@@ -36,6 +39,7 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+  
 
   Future<bool> register(
     String firstName,
@@ -79,11 +83,30 @@ class AuthViewModel extends ChangeNotifier {
     await _repository.updateUser(updated);
   }
 
-  Future<void> signOut() async {
-    await fb_auth.FirebaseAuth.instance.signOut(); // signs out from Firebase
+Future<void> restoreSession() async {
+    final fbUser = await fb_auth.FirebaseAuth.instance
+        .authStateChanges()
+        .first; // emits null or User once the SDK is ready
+
+    if (fbUser == null) return;
+
+    try {
+      currentUser = await _repository.getUserById(fbUser.uid);
+      notifyListeners();
+    } catch (e) {
+      await fb_auth.FirebaseAuth.instance.signOut();
+    }
+  }
+
+Future<void> signOut(BuildContext context) async {
+    await fb_auth.FirebaseAuth.instance.signOut();
     currentUser = null;
     error = null;
     notifyListeners();
+
+    // clear per-user state
+    context.read<NotificationViewModel>().clearNotifications();
+    context.read<UserPassViewModel>().clearPass();
   }
 
   void clearError() {

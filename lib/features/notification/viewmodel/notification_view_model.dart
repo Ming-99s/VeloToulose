@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/models/notification.dart';
 import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/ride.dart';
@@ -11,7 +12,6 @@ class NotificationViewModel extends ChangeNotifier {
 
   List<AppNotification> _notifications = [];
   List<AppNotification> get notifications => _notifications;
-  static const int freeMinutes = 30;
 
   // store ride + pass data per notification for RideSummaryScreen
   final Map<String, Ride> _rideData = {};
@@ -31,14 +31,22 @@ class NotificationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearNotifications() {
+    _notifications = [];
+    _rideData.clear();
+    _hasPassData.clear();
+    notifyListeners();
+  }
+
   // called when a ride ends
   Future<void> addRideReceipt(Ride ride, {required bool hasPass}) async {
     final duration = ride.duration;
+    const int freeMinutes = 30;
 
     String message;
     if (hasPass) {
       message = 'Ride completed in ${duration}min. Covered by your pass!';
-    } else if (ride.isOvertime() == false) {
+    } else if (!ride.isOvertime()) {
       message = 'Ride completed in ${duration}min. Total: Free!';
     } else {
       final cost = ride.cost;
@@ -48,7 +56,7 @@ class NotificationViewModel extends ChangeNotifier {
     }
 
     final notification = AppNotification(
-      notificationId: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+      notificationId: IdGenerator.notification(),
       userId: ride.userId,
       type: 'payment_receipt',
       message: message,
@@ -61,7 +69,6 @@ class NotificationViewModel extends ChangeNotifier {
     _rideData[notification.notificationId] = ride;
     _hasPassData[notification.notificationId] = hasPass;
 
-    // reload for this user
     await loadNotifications(ride.userId);
   }
 
@@ -71,7 +78,7 @@ class NotificationViewModel extends ChangeNotifier {
         'You purchased a ${pass.type.name} pass for €${pass.price.toStringAsFixed(2)}.';
 
     final notification = AppNotification(
-      notificationId: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+      notificationId: IdGenerator.notification(),
       userId: userId,
       type: 'pass_purchase',
       message: message,

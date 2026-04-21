@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/core/enum/payment_type.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/map/utils/distance_format.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
@@ -11,7 +14,9 @@ import 'package:velo_toulose/features/notification/viewmodel/notification_view_m
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/booking/view/payment_method_screen.dart';
 import 'package:velo_toulose/models/bike.dart';
+import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/models/station.dart';
+import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 
 class BottomSheetWidget extends StatelessWidget {
   const BottomSheetWidget({
@@ -25,28 +30,48 @@ class BottomSheetWidget extends StatelessWidget {
   final MapViewModel viewModel;
   final ScrollController scrollController;
 
-Future<void> endRide(BuildContext context) async {
+  Future<void> endRide(BuildContext context) async {
     final endedRide = await context.read<RideViewModel>().endRide(
       station.stationId,
     );
+    if (endedRide == null || !context.mounted) return;
 
-    if (endedRide != null && context.mounted) {
-      final hasPass = context.read<UserPassViewModel>().hasActivePass;
-      context.read<NotificationViewModel>().addRideReceipt(
-        endedRide,
-        hasPass: hasPass,
+    final hasPass = context.read<UserPassViewModel>().hasActivePass;
+    final payRepo = context.read<PaymentRepository>();
+    final userId = context.read<AuthViewModel>().currentUser!.userId;
+
+    // charge overtime if applicable and no pass
+    if (!hasPass && endedRide.isOvertime()) {
+      final overtimeCost = endedRide.calculateCost(hasPass: false) - 2.50;
+      await payRepo.savePayment(
+        Payment(
+          paymentId: IdGenerator.payment(),
+          userId: userId,
+          type: PaymentType.overtimeFee,
+          amount: overtimeCost,
+          createdAt: DateTime.now(),
+          rideId: endedRide.rideId,
+        ),
       );
-      // reload this station's bikes and docks after return
-      await context.read<MapViewModel>().loadBikesByStation(station.stationId);
-      await context.read<MapViewModel>().loadDockByStation(station.stationId);
     }
+
+    if (!context.mounted) return;
+
+    context.read<NotificationViewModel>().addRideReceipt(
+      endedRide,
+      hasPass: hasPass,
+    );
+
+    // reload this station's bikes and docks after return
+    await context.read<MapViewModel>().loadBikesByStation(station.stationId);
+    await context.read<MapViewModel>().loadDockByStation(station.stationId);
 
     if (context.mounted) {
       viewModel.clearSelectedStation();
     }
   }
 
-  void _toConfirmRide(BuildContext context, Station station,Bike bike) {
+  void _toConfirmRide(BuildContext context, Station station, Bike bike) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PaymentMethodScreen(
@@ -140,7 +165,7 @@ Future<void> endRide(BuildContext context) async {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.pedal_bike,
                               size: 30,
                               color: AppColor.primary,
@@ -148,7 +173,6 @@ Future<void> endRide(BuildContext context) async {
                             const Text(
                               'Available',
                               style: AppTextStyle.pricePeriod,
-                              
                             ),
                             Text(
                               '${availableBikes.length}',
@@ -160,13 +184,13 @@ Future<void> endRide(BuildContext context) async {
                         Container(
                           width: 1,
                           height: 50,
-                          color: AppColor.primary
+                          color: AppColor.primary,
                         ),
                         // empty docks
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.dock,
                               size: 30,
                               color: AppColor.primary,
@@ -257,7 +281,7 @@ Future<void> endRide(BuildContext context) async {
                     .map(
                       (slot) => EmptyDockTile(
                         slot: slot,
-                        onReturn: ()=>endRide(context)
+                        onReturn: () => endRide(context),
                       ),
                     )
                     .toList(),
@@ -272,4 +296,3 @@ Future<void> endRide(BuildContext context) async {
     );
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/enum/pass_plans.dart';
 import 'package:velo_toulose/core/enum/pass_type.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
 
@@ -27,7 +28,7 @@ class PassViewModel extends ChangeNotifier {
         validity = const Duration(hours: 24);
         break;
       case PassType.weekly:
-        validity = const Duration(days: 30);
+        validity = const Duration(days: 7);
         break;
       case PassType.annual:
         validity = const Duration(days: 365);
@@ -37,7 +38,7 @@ class PassViewModel extends ChangeNotifier {
     }
 
     return Pass(
-      passId: 'pass_${plan.type.name}_${now.millisecondsSinceEpoch}',
+      passId: IdGenerator.pass(plan.type.name),
       type: plan.type,
       startDate: now,
       endDate: now.add(validity),

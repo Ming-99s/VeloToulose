@@ -6,6 +6,6 @@ abstract class StationRepostiory {
   Future<List<Station>> loadStations();
   Future<List<Bike>> loadBikesByStation(String stationId);
   Future<List<Slot>> loadSlotsByStation(String stationId);
-  void removeBikeFromStation(String stationId, String bikeId);
-  void addBikeToStation(String stationId, String bikeId);
+  Future<void> removeBikeFromStation(String stationId, String bikeId);
+  Future<void> addBikeToStation(String stationId, String bikeId);
 }
