@@ -41,7 +41,7 @@ class EmptyDockTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Dock #${slot.slotNumber}',
+                    'Dock #${slot.slotId}',
                     style: AppTextStyle.cardTitle,
                   ),
                   Text('available to return', style: AppTextStyle.pricePeriod),

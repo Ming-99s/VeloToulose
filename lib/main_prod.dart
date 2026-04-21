@@ -1,11 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
-import 'package:velo_toulose/features/booking/viewmodel/pass_viewmode.dart';
-import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
+import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
 import 'package:velo_toulose/repositories/abstract/notification_repository.dart';
 import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
@@ -13,21 +15,23 @@ import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
 import 'package:velo_toulose/repositories/abstract/user_repository.dart';
+import 'package:velo_toulose/repositories/firesbase/notification_repository_firebase.dart';
+import 'package:velo_toulose/repositories/firesbase/pass_repository_firebase.dart';
+import 'package:velo_toulose/repositories/firesbase/payment_repository_firebase.dart';
+import 'package:velo_toulose/repositories/firesbase/ride_repository_firebase.dart';
+import 'package:velo_toulose/repositories/firesbase/station_repository_firebase.dart';
+import 'package:velo_toulose/repositories/firesbase/user_repository_firebase.dart';
 import 'package:velo_toulose/repositories/local/pref_repository.dart';
-import 'package:velo_toulose/repositories/mock/notification_repository_mock.dart';
-import 'package:velo_toulose/repositories/mock/pass_repository_mock.dart';
-import 'package:velo_toulose/repositories/mock/payment_repository_mock.dart';
-import 'package:velo_toulose/repositories/mock/ride_repository_mock.dart';
-import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
-import 'package:velo_toulose/repositories/mock/user_repository_mock.dart';
+// TODO: uncomment after running `flutterfire configure`
+// import 'firebase_options.dart';
 
-List<InheritedProvider> get devProviders {
-  final StationRepostiory stationRepo = StationRepositoryMock();
-  final UserRepository userRepository = UserRepositoryMock();
-  final RideRepository rideRepository = RideRepositoryMock(stationRepo);
-  final PassRepository passRepository = PassRepositoryMock();
-  final NotificationRepository notifRepo = NotificationRepositoryMock();
-  final PaymentRepository paymentRepo = PaymentRepositoryMock();
+List<InheritedProvider> get prodProviders {
+  final StationRepostiory stationRepo = StationRepositoryFirebase();
+  final UserRepository userRepository = UserRepositoryFirebase();
+  final RideRepository rideRepository = RideRepositoryFirebase(stationRepo);
+  final PassRepository passRepository = PassRepositoryFirebase();
+  final NotificationRepository notifRepo = NotificationRepositoryFirebase();
+  final PaymentRepository paymentRepo = PaymentRepositoryFirebase();
 
   return [
     // repositories
@@ -67,7 +71,17 @@ List<InheritedProvider> get devProviders {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    // TODO: uncomment after running `flutterfire configure`
+    // options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+
+  // Point to your Realtime Database instance
+  FirebaseDatabase.instance.databaseURL =
+      'https://velotoulouse-382ac-default-rtdb.asia-southeast1.firebasedatabase.app';
+
   final prefRepo = PreferencesRepository();
   final onboardingDone = await prefRepo.isOnboardingDone();
-  mainCommon(devProviders, onboardingDone: onboardingDone);
+  mainCommon(prodProviders, onboardingDone: onboardingDone);
 }

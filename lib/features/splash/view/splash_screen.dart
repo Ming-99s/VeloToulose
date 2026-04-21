@@ -1,10 +1,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:velo_toulose/features/auth/view/auth_screen.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
+import 'package:velo_toulose/features/onBoarding/view/on-boarding_screen.dart';
+import 'package:velo_toulose/main_common.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Widget nextScreen;
-  const SplashScreen({super.key, required this.nextScreen});
+  final bool onboardingDone;
+
+  const SplashScreen({super.key, required this.onboardingDone});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -39,15 +45,35 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  void _startCircleAnimation() async {
+  Future<void> _startCircleAnimation() async {
+    final auth = context.read<AuthViewModel>();
+    await auth.restoreSession();
+
     await _circleScaleController.forward();
     await _circleFadeController.forward();
+
     if (!mounted) return;
+    
+
+    // 1. Onboarding not done =>show onboarding
+    // 2. Onboarding done + logged in =>go to app
+    // 3. Onboarding done + not logged in =>show login
+    final Widget next;
+    if (!widget.onboardingDone) {
+      next = const OnBoardingScreen();
+    } else if (auth.isLoggedIn) {
+      next = const MyApp();
+    } else {
+      next = const AuthScreen(mode: AuthMode.login);
+    }
+
+    
+
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 400),
-        pageBuilder: (_, __, ___) => widget.nextScreen,
+        pageBuilder: (_, __, ___) => next,
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -84,12 +110,12 @@ class _SplashScreenState extends State<SplashScreen>
               controller: _lottieController,
               onLoaded: (composition) {
                 _lottieController
-                  ..duration = composition.duration *0.8
+                  ..duration = composition.duration * 0.8
+                  // FIX 3: pass _startCircleAnimation as a tear-off, not a call
                   ..forward().whenComplete(_startCircleAnimation);
               },
             ),
           ),
-
           Positioned.fill(
             child: AnimatedBuilder(
               animation: Listenable.merge([

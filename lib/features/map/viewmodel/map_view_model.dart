@@ -35,6 +35,17 @@ class MapViewModel extends ChangeNotifier {
 
   Future<void> loadStations() async {
     stations = await stationRepostiory.loadStations();
+
+    if (selectedStation != null) {
+      selectedStation = stations.firstWhere(
+        (s) => s.stationId == selectedStation!.stationId,
+        orElse: () => selectedStation!,
+      );
+
+      await loadBikesByStation(selectedStation!.stationId);
+      await loadDockByStation(selectedStation!.stationId);
+    }
+
     notifyListeners();
   }
 
@@ -48,16 +59,12 @@ class MapViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Bike> getBikesAt(Station station) {
-    return bikes
-        .where(
-          (bike) => station.slots.any((slot) => slot.bikeId == bike.bikeId),
-        )
-        .toList();
+  List<Bike> getBikesAt() {
+    return bikes.toList();
   }
 
-  List<Slot> getDockAt(Station station) {
-    return slots.where((s) => s.isEmpty()).toList();
+  List<Slot> getDockAt() {
+    return slots.where((s) => s.isEmpty).toList();
   }
 
   double? getDistanceTo(Station station) {

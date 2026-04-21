@@ -1,33 +1,26 @@
-import 'package:velo_toulose/core/enum/pass_type.dart';
-import 'package:velo_toulose/models/pass.dart';
 
 class User {
   final String userId;
-  final Uri image;
   final String firstName;
   final String lastName;
   final String email;
   final String phone;
   final String password;
-  final String? passid; 
+  final String? passid;
 
   const User({
     required this.userId,
-    required this.image,
     required this.firstName,
     required this.lastName,
     required this.email,
     required this.phone,
     required this.password,
-    this.passid, 
+    this.passid,
   });
 
   String get fullName => '$firstName $lastName';
 
-  bool get hasImage => image.toString().isNotEmpty;
-
   bool get hasActivPass => passid != null;
-
 
   User copyWith({
     String? userId,
@@ -37,13 +30,11 @@ class User {
     String? email,
     String? phone,
     String? password,
-    double? balance,
     String? passid,
     bool clearPass = false,
   }) {
     return User(
       userId: userId ?? this.userId,
-      image: image ?? this.image,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,

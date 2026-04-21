@@ -1,4 +1,3 @@
-
 import 'package:velo_toulose/models/user.dart';
 
 class UserDto {
@@ -6,14 +5,13 @@ class UserDto {
   static const String lastNameKey = 'lastName';
   static const String emailKey = 'email';
   static const String phoneKey = 'phone';
-  static const String balanceKey = 'balance';
+  static const String passIdKey = 'passId';
 
   static User fromJson(String id, Map<String, dynamic> json) {
     assert(json[firstNameKey] is String);
     assert(json[lastNameKey] is String);
     assert(json[emailKey] is String);
     assert(json[phoneKey] is String);
-    assert(json[balanceKey] is num);
 
     return User(
       userId: id,
@@ -21,17 +19,18 @@ class UserDto {
       lastName: json[lastNameKey],
       email: json[emailKey],
       phone: json[phoneKey],
-      balance: (json[balanceKey] as num).toDouble(),
+      password: '', // never stored managed by Firebase Auth
+      passid: json[passIdKey] as String?,
     );
   }
 
-  Map<String, dynamic> toJson(User user) {
+  static Map<String, dynamic> toJson(User user) {
     return {
       firstNameKey: user.firstName,
       lastNameKey: user.lastName,
       emailKey: user.email,
       phoneKey: user.phone,
-      balanceKey: user.balance,
+      passIdKey: user.passid,
     };
   }
 }

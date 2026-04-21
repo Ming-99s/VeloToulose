@@ -1,100 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/models/notification.dart';
 import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/ride.dart';
+import 'package:velo_toulose/repositories/abstract/notification_repository.dart';
 
 class NotificationViewModel extends ChangeNotifier {
-  // List of all notifications 
-  final List<AppNotification> _notifications = [];
+  final NotificationRepository _repository;
+
+  NotificationViewModel(this._repository);
+
+  List<AppNotification> _notifications = [];
   List<AppNotification> get notifications => _notifications;
 
-  // Store ride data for each notification to show receipt details
+  // store ride + pass data per notification for RideSummaryScreen
   final Map<String, Ride> _rideData = {};
-
-  // Store whether user had a pass for each notification
   final Map<String, bool> _hasPassData = {};
 
-  // unread notifications
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
-  /// Get the ride data for a notification
-  Ride? getRideForNotification(String notificationId) {
-    return _rideData[notificationId];
+  Ride? getRideForNotification(String notificationId) =>
+      _rideData[notificationId];
+
+  bool hadPassForNotification(String notificationId) =>
+      _hasPassData[notificationId] ?? false;
+
+  // load notifications for current user only
+  Future<void> loadNotifications(String userId) async {
+    _notifications = await _repository.getNotificationsByUser(userId);
+    notifyListeners();
   }
 
-  /// Check if the user had a pass for this notification
-  bool hadPassForNotification(String notificationId) {
-    return _hasPassData[notificationId] ?? false;
+  void clearNotifications() {
+    _notifications = [];
+    _rideData.clear();
+    _hasPassData.clear();
+    notifyListeners();
   }
 
-  /// Called when a ride ends creates a payment receipt notification
-  void addRideReceipt(Ride ride, {bool hasPass = false}) {
+  // called when a ride ends
+  Future<void> addRideReceipt(Ride ride, {required bool hasPass}) async {
     final duration = ride.duration;
+    const int freeMinutes = 30;
 
-    // Build a simple receipt message
     String message;
     if (hasPass) {
-      message = 'Ride completed in ${duration}s. Covered by your pass!';
-    } else if (duration <= Ride.freeSeconds) {
-      message = 'Ride completed in ${duration}s. Total: Free!';
+      message = 'Ride completed in ${duration}min. Covered by your pass!';
+    } else if (!ride.isOvertime()) {
+      message = 'Ride completed in ${duration}min. Total: Free!';
     } else {
       final cost = ride.cost;
-      final overtime = duration - Ride.freeSeconds;
-      message = 'Ride completed in ${duration}s. '
-          'Overtime: ${overtime}s × €0.05 = €${cost.toStringAsFixed(2)}';
+      final overtime = duration - freeMinutes;
+      message =
+          'Ride completed in ${duration}min. Overtime: ${overtime}min × €0.05 = €${cost.toStringAsFixed(2)}';
     }
 
     final notification = AppNotification(
-      notificationId: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+      notificationId: IdGenerator.notification(),
       userId: ride.userId,
       type: 'payment_receipt',
       message: message,
       sentAt: DateTime.now(),
     );
 
-    // Add to the top of the list
-    _notifications.insert(0, notification);
-    // Store ride data so receipt screen can use it
+    await _repository.saveNotification(notification);
+
+    // store ride data for RideSummaryScreen
     _rideData[notification.notificationId] = ride;
     _hasPassData[notification.notificationId] = hasPass;
-    notifyListeners();
+
+    await loadNotifications(ride.userId);
   }
 
-  /// Called when a user buys a pass
-  void addPassPurchase(Pass pass, String userId) {
-    final typeName = pass.type.name; // daily, weekly, annual
-    final message = 'You purchased a $typeName pass for \u20ac${pass.price.toStringAsFixed(2)}.';
+  // called when a user buys a pass
+  Future<void> addPassPurchase(Pass pass, String userId) async {
+    final message =
+        'You purchased a ${pass.type.name} pass for €${pass.price.toStringAsFixed(2)}.';
 
     final notification = AppNotification(
-      notificationId: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+      notificationId: IdGenerator.notification(),
       userId: userId,
       type: 'pass_purchase',
       message: message,
       sentAt: DateTime.now(),
     );
 
-    _notifications.insert(0, notification);
-    notifyListeners();
+    await _repository.saveNotification(notification);
+    await loadNotifications(userId);
   }
 
-  /// Mark a single notification as read
-  void markAsRead(String notificationId) {
-    final index = _notifications.indexWhere(
-      (n) => n.notificationId == notificationId,
-    );
-    if (index != -1) {
-      _notifications[index] = _notifications[index].markAsRead();
-      notifyListeners();
-    }
+  Future<void> markAsRead(String notificationId, String userId) async {
+    await _repository.markAsRead(notificationId);
+    await loadNotifications(userId);
   }
 
-  /// Mark all notifications as read
-  void markAllAsRead() {
-    for (var i = 0; i < _notifications.length; i++) {
-      if (!_notifications[i].isRead) {
-        _notifications[i] = _notifications[i].markAsRead();
-      }
-    }
-    notifyListeners();
+  Future<void> markAllAsRead(String userId) async {
+    await _repository.markAllAsRead(userId);
+    await loadNotifications(userId);
   }
 }
