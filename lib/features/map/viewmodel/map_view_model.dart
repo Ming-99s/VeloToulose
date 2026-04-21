@@ -31,7 +31,7 @@ class MapViewModel extends ChangeNotifier {
   }
 
   // Phnom Penh as fallback if location fails
-  static const LatLng fallback = LatLng(11.5564, 104.9282);
+  LatLng fallback = LatLng(11.5564, 104.9282);
 
   Future<void> loadStations() async {
     stations = await stationRepostiory.loadStations();

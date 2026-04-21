@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:velo_toulose/features/auth/view/auth_screen.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/onBoarding/view/on-boarding_screen.dart';
 import 'package:velo_toulose/main_common.dart';
@@ -53,21 +52,13 @@ class _SplashScreenState extends State<SplashScreen>
     await _circleFadeController.forward();
 
     if (!mounted) return;
-    
 
-    // 1. Onboarding not done =>show onboarding
-    // 2. Onboarding done + logged in =>go to app
-    // 3. Onboarding done + not logged in =>show login
-    final Widget next;
-    if (!widget.onboardingDone) {
-      next = const OnBoardingScreen();
-    } else if (auth.isLoggedIn) {
-      next = const MyApp();
-    } else {
-      next = const AuthScreen(mode: AuthMode.login);
-    }
-
-    
+    // 1. Onboarding not done  => show onboarding
+    // 2. Onboarding done      => go to app (both guests and logged-in users)
+    //    Login check happens later when user tries to book a bike
+    final Widget next = widget.onboardingDone
+        ? const MyApp()
+        : const OnBoardingScreen();
 
     Navigator.pushReplacement(
       context,
@@ -111,7 +102,6 @@ class _SplashScreenState extends State<SplashScreen>
               onLoaded: (composition) {
                 _lottieController
                   ..duration = composition.duration * 0.8
-                  // FIX 3: pass _startCircleAnimation as a tear-off, not a call
                   ..forward().whenComplete(_startCircleAnimation);
               },
             ),
