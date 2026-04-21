@@ -1,13 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/core/enum/payment_type.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/main_common.dart';
 import 'package:velo_toulose/models/pass.dart';
+import 'package:velo_toulose/models/payment.dart';
+import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 
 class BookingSuccessScreen extends StatefulWidget {
   final String bikeId;
@@ -37,16 +41,35 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
   }
 
   Future<void> _startRide() async {
-    final rideViewModel = context.read<RideViewModel>();
-    final authViewModel = context.read<AuthViewModel>();
+    final rideVm = context.read<RideViewModel>();
+    final authVm = context.read<AuthViewModel>();
+    final payRepo = context.read<PaymentRepository>();
 
-    if (!authViewModel.isLoggedIn) return;
+    if (!authVm.isLoggedIn) return;
 
-    await rideViewModel.startRide(
-      userId: authViewModel.currentUser!.userId,
+    final fbUser = fb_auth.FirebaseAuth.instance.currentUser;
+    if (fbUser == null) return;
+    await fbUser.getIdToken(); 
+
+    await rideVm.startRide(
+      userId: authVm.currentUser!.userId,
       bikeId: widget.bikeId,
       startStationId: widget.stationId,
     );
+
+    // charge unlock fee if no pass
+    if (widget.usedPass == null) {
+      await payRepo.savePayment(
+        Payment(
+          paymentId: IdGenerator.payment(),
+          userId: authVm.currentUser!.userId,
+          type: PaymentType.unlockFee,
+          amount: 2.50,
+          createdAt: DateTime.now(),
+          rideId: rideVm.activeRide?.rideId,
+        ),
+      );
+    }
   }
 
   bool get isPaidWithPass => widget.usedPass != null;
@@ -60,7 +83,6 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-
               const SizedBox(height: 32),
 
               Container(
@@ -101,10 +123,7 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                 ),
                 child: Column(
                   children: [
-                    _DetailRow(
-                      label: 'Bike',
-                      value: '#${widget.bikeId}',
-                    ),
+                    _DetailRow(label: 'Bike', value: '#${widget.bikeId}'),
                     const SizedBox(height: 12),
                     const Divider(color: AppColor.border, height: 1),
                     const SizedBox(height: 12),
@@ -114,14 +133,11 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                     const SizedBox(height: 12),
                     _DetailRow(
                       label: 'Payment',
-                      // show pass name or pay as you go
                       value: isPaidWithPass
                           ? '${widget.usedPass!.type.name} pass'
                           : 'Pay-as-you-go',
                     ),
                     const SizedBox(height: 12),
-
-
                   ],
                 ),
               ),
@@ -134,7 +150,7 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
                   label: 'Start Riding',
                   isprimaryColor: true,
                   trailingIcon: Icons.pedal_bike,
-          onPressed: () {
+                  onPressed: () {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),

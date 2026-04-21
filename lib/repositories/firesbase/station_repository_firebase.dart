@@ -72,19 +72,22 @@ class StationRepositoryFirebase implements StationRepostiory {
         .orderByChild('stationId')
         .equalTo(stationId)
         .get();
-    if (!snapshot.exists) return [];
+    if (!snapshot.exists || snapshot.value == null) return [];
 
-    final bikesMap = Map<String, dynamic>.from(snapshot.value as Map);
+    final raw = snapshot.value;
+    if (raw is! Map) return [];
 
-    return bikesMap.entries.map((entry) {
-      final id = entry.key;
+    return raw.entries.map((entry) {
       final data = Map<String, dynamic>.from(entry.value as Map);
-      return Bike(bikeId: id, slotId: data['slotId'] as String?);
+      return Bike(
+        bikeId: entry.key as String,
+        slotId: data['slotId'] as String?,
+      );
     }).toList();
   }
 
   @override
-  void removeBikeFromStation(String stationId, String bikeId) async {
+  Future<void> removeBikeFromStation(String stationId, String bikeId) async {
     // Find which slot has this bike and clear it
     final slotsSnap = await _stations.child('$stationId/slots').get();
     if (!slotsSnap.exists) return;
@@ -107,7 +110,7 @@ class StationRepositoryFirebase implements StationRepostiory {
   }
 
   @override
-  void addBikeToStation(String stationId, String bikeId) async {
+  Future<void> addBikeToStation(String stationId, String bikeId) async {
     // Find first free slot in this station
     final slotsSnap = await _stations.child('$stationId/slots').get();
     if (!slotsSnap.exists) return;

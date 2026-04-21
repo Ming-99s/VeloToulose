@@ -1,13 +1,13 @@
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/models/ride.dart';
 import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
 import 'package:velo_toulose/repositories/abstract/station_repostiory.dart';
-import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
 
 class RideRepositoryMock implements RideRepository {
   Ride? _activeRide;
-  final StationRepostiory _stationRepo; 
+  final StationRepostiory _stationRepo;
 
-  RideRepositoryMock(this._stationRepo); // ← inject
+  RideRepositoryMock(this._stationRepo);
 
   @override
   Future<Ride> startRide({
@@ -16,9 +16,9 @@ class RideRepositoryMock implements RideRepository {
     required String startStationId,
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    _stationRepo.removeBikeFromStation(startStationId, bikeId); 
+    await _stationRepo.removeBikeFromStation(startStationId, bikeId);
     _activeRide = Ride(
-      rideId: 'ride_${DateTime.now().millisecondsSinceEpoch}',
+      rideId: IdGenerator.ride(),
       userId: userId,
       bikeId: bikeId,
       startStationId: startStationId,
@@ -31,10 +31,7 @@ class RideRepositoryMock implements RideRepository {
   Future<Ride> endRide(String rideId, String endStationId) async {
     await Future.delayed(const Duration(milliseconds: 500));
     if (_activeRide == null) throw Exception('No active ride found');
-    _stationRepo.addBikeToStation(
-      endStationId,
-      _activeRide!.bikeId,
-    ); // ← mutate
+    await _stationRepo.addBikeToStation(endStationId, _activeRide!.bikeId);
     _activeRide = _activeRide!.copyWith(
       endStationId: endStationId,
       endTime: DateTime.now(),

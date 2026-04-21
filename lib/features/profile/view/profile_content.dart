@@ -16,8 +16,10 @@ class ProfileContent extends StatelessWidget {
   const ProfileContent({super.key});
 
   void _signOutOrLogin(BuildContext context) {
-    context.read<AuthViewModel>().signOut();
-    Navigator.pop(context);
+    final vm = context.read<AuthViewModel>();
+    vm.signOut(context);
+
+    vm.isLoggedIn ? Navigator.pop(context) : null;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => AuthScreen(mode: AuthMode.login)),
@@ -58,12 +60,13 @@ class ProfileContent extends StatelessWidget {
                       ],
                     ),
                     child: CircleAvatar(
+                      backgroundColor: AppColor.textSecondary,
                       radius: 60,
                       child: Icon(
-                              Icons.person,
-                              color: AppColor.background,
-                              size: 50,
-                            )
+                        Icons.person,
+                        color: AppColor.background,
+                        size: 50,
+                      ),
                     ),
                   ),
                   if (vm.isLoggedIn)
