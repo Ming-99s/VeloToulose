@@ -159,7 +159,7 @@ if (success && mounted) {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColor.red.withOpacity(0.1),
+                              color: const Color.fromARGB(18, 164, 29, 19),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(

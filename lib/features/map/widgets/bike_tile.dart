@@ -102,7 +102,7 @@ class BikeTile extends StatelessWidget {
               color: AppColor.primary,
             ),
             child: TextButton(
-              onPressed: () => _handleSelect(context), // ← check login here
+              onPressed: () => _handleSelect(context), 
               child: Text('Select', style: AppTextStyle.buttonText),
             ),
           ),

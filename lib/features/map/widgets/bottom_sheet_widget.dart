@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/enum/payment_type.dart';
-import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/map/utils/distance_format.dart';
@@ -30,22 +29,23 @@ class BottomSheetWidget extends StatelessWidget {
   final MapViewModel viewModel;
   final ScrollController scrollController;
 
-  Future<void> endRide(BuildContext context) async {
+  Future<void> _endRide(BuildContext context) async {
     final endedRide = await context.read<RideViewModel>().endRide(
       station.stationId,
     );
     if (endedRide == null || !context.mounted) return;
 
+    final auth = context.read<AuthViewModel>();
     final hasPass = context.read<UserPassViewModel>().hasActivePass;
     final payRepo = context.read<PaymentRepository>();
-    final userId = context.read<AuthViewModel>().currentUser!.userId;
+    final userId = auth.currentUser!.userId;
 
-    // charge overtime if applicable and no pass
+    // Charge overtime if applicable and no pass
     if (!hasPass && endedRide.isOvertime()) {
       final overtimeCost = endedRide.calculateCost(hasPass: false) - 2.50;
       await payRepo.savePayment(
         Payment(
-          paymentId: IdGenerator.payment(),
+          paymentId: 'pay_${DateTime.now().millisecondsSinceEpoch}',
           userId: userId,
           type: PaymentType.overtimeFee,
           amount: overtimeCost,
@@ -62,7 +62,7 @@ class BottomSheetWidget extends StatelessWidget {
       hasPass: hasPass,
     );
 
-    // reload this station's bikes and docks after return
+    // Reload this station's bikes and docks after return
     await context.read<MapViewModel>().loadBikesByStation(station.stationId);
     await context.read<MapViewModel>().loadDockByStation(station.stationId);
 
@@ -88,7 +88,6 @@ class BottomSheetWidget extends StatelessWidget {
     final rideViewModel = context.watch<RideViewModel>();
     final hasActiveRide = rideViewModel.hasActiveRide;
 
-    // empty slots where user can return their bike
     final emptySlots = viewModel.getDockAt();
     final availableBikes = viewModel.getBikesAt();
 
@@ -161,11 +160,10 @@ class BottomSheetWidget extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // available bikes
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.pedal_bike,
                               size: 30,
                               color: AppColor.primary,
@@ -180,21 +178,15 @@ class BottomSheetWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        // divider
                         Container(
                           width: 1,
                           height: 50,
                           color: AppColor.primary,
                         ),
-                        // empty docks
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              Icons.dock,
-                              size: 30,
-                              color: AppColor.primary,
-                            ),
+                            Icon(Icons.dock, size: 30, color: AppColor.primary),
                             const Text(
                               'Empty docks',
                               style: AppTextStyle.pricePeriod,
@@ -281,7 +273,7 @@ class BottomSheetWidget extends StatelessWidget {
                     .map(
                       (slot) => EmptyDockTile(
                         slot: slot,
-                        onReturn: () => endRide(context),
+                        onReturn: () => _endRide(context),
                       ),
                     )
                     .toList(),

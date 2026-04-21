@@ -21,7 +21,6 @@ class MapContent extends StatefulWidget {
 }
 
 class _MapContentState extends State<MapContent> {
-  static const LatLng defaultCenter = LatLng(11.5564, 104.9282);
   final MapController _mapController = MapController();
 
   @override
@@ -85,8 +84,8 @@ void _goToSearch() {
         // map
         FlutterMap(
           mapController: _mapController,
-          options: const MapOptions(
-            initialCenter: defaultCenter,
+          options: MapOptions(
+            initialCenter: mapViewModel.fallback,
             initialZoom: 15.0,
             interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
           ),
