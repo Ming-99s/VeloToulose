@@ -1,4 +1,3 @@
-/// Generates short, readable IDs like "ride_a3f9", "pay_12bc", etc.
 /// Uses the last 4 hex chars of the current millisecond timestamp.
 class IdGenerator {
   static String _hex4() =>
