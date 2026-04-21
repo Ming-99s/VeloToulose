@@ -61,7 +61,7 @@ List<InheritedProvider> get prodProviders {
     ),
     ChangeNotifierProvider<RideViewModel>(
       create: (context) =>
-          RideViewModel(rideRepository, context.read<MapViewModel>()),
+          RideViewModel(rideRepository, context.read<MapViewModel>(), paymentRepo),
     ),
     ChangeNotifierProvider<NotificationViewModel>(
       create: (_) => NotificationViewModel(notifRepo),

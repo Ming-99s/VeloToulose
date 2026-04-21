@@ -12,6 +12,7 @@ import 'package:velo_toulose/features/map/widgets/empty_dock.dart';
 import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/booking/view/payment_method_screen.dart';
+import 'package:velo_toulose/features/booking/viewmodel/payment_method_viewmodel.dart';
 import 'package:velo_toulose/models/bike.dart';
 import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/models/station.dart';
@@ -74,10 +75,13 @@ class BottomSheetWidget extends StatelessWidget {
   void _toConfirmRide(BuildContext context, Station station, Bike bike) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PaymentMethodScreen(
-          station: station,
-          bikeId: bike.bikeId,
-          slotLabel: bike.slotId!,
+        builder: (_) => ChangeNotifierProvider(
+          create: (_) => PaymentMethodViewModel(),
+          child: PaymentMethodScreen(
+            station: station,
+            bikeId: bike.bikeId,
+            slotLabel: bike.slotId!,
+          ),
         ),
       ),
     );

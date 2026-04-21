@@ -5,15 +5,14 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
 import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
+import 'package:velo_toulose/features/booking/viewmodel/payment_method_viewmodel.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/booking/widgets/selected_bike_card.dart';
 import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
 import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/station.dart';
 
-enum PaymentMethodOption { payAsYouGo, selectPass }
-
-class PaymentMethodScreen extends StatefulWidget {
+class PaymentMethodScreen extends StatelessWidget {
   final Station station;
   final String bikeId;
   final String slotLabel;
@@ -25,45 +24,32 @@ class PaymentMethodScreen extends StatefulWidget {
     required this.slotLabel,
   });
 
-  @override
-  State<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
-}
-
-class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
-  PaymentMethodOption _selected = PaymentMethodOption.payAsYouGo;
-  Pass? _selectedPass;
-
-  static const double unlockFee = 2.50;
-
-  double get totalPrice => _selectedPass != null ? 0.0 : unlockFee;
-  String get priceLabel =>
-      _selectedPass != null ? 'Free' : '€${unlockFee.toStringAsFixed(2)}';
-
-  Future<void> _goToPassSelection() async {
+  Future<void> _goToPassSelection(
+    BuildContext context,
+    PaymentMethodViewModel vm,
+  ) async {
     final Pass? result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            PassView(bikeId: widget.bikeId, station: widget.station),
+        builder: (_) => PassView(bikeId: bikeId, station: station),
       ),
     );
-
     if (result != null) {
-      setState(() {
-        _selectedPass = result;
-        _selected = PaymentMethodOption.selectPass;
-      });
+      vm.setSelectedPass(result);
     }
   }
 
-  void _confirmBooking(Pass? activePass) {
+  void _confirmBooking(
+    BuildContext context,
+    Pass? activePass,
+    PaymentMethodViewModel vm,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BookingSuccessScreen(
-          bikeId: widget.bikeId,
-          stationName: widget.station.name,
-          stationId: widget.station.stationId,
-          usedPass:
-              activePass ?? _selectedPass, // use active pass or selected pass
+          bikeId: bikeId,
+          stationName: station.name,
+          stationId: station.stationId,
+          usedPass: activePass ?? vm.selectedPass,
         ),
       ),
     );
@@ -71,6 +57,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<PaymentMethodViewModel>();
     final userPassVm = context.watch<UserPassViewModel>();
     final hasActivePass = userPassVm.hasActivePass;
     final activePass = userPassVm.activePass;
@@ -101,14 +88,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
               Center(child: Text('BOOKING SUMMARY', style: AppTextStyle.label)),
               const SizedBox(height: 8),
               Center(
-                child: Text(widget.station.name, style: AppTextStyle.heading),
+                child: Text(station.name, style: AppTextStyle.heading),
               ),
               const SizedBox(height: 20),
 
-              SelectedBikeCard(
-                bikeId: widget.bikeId,
-                slotLabel: widget.slotLabel,
-              ),
+              SelectedBikeCard(bikeId: bikeId, slotLabel: slotLabel),
               const SizedBox(height: 28),
 
               Text(
@@ -119,23 +103,20 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
               ),
               const SizedBox(height: 12),
 
-              // if user has active pass show their pass card only
               if (hasActivePass) ...[
-                PassCard(pass: activePass!,onPressed: ()=> _goToPassSelection(),),
+                PassCard(
+                  pass: activePass!,
+                  onPressed: () => _goToPassSelection(context, vm),
+                ),
                 const SizedBox(height: 8),
-
               ] else ...[
-                // user has no pass — show payment options
                 _PaymentOptionTile(
                   icon: Icons.directions_bike,
                   title: 'Pay-as-you-go',
                   subtitle:
                       '€2.50 per ride. First 30 min free,\nthen €0.05/min.',
-                  isSelected: _selected == PaymentMethodOption.payAsYouGo,
-                  onTap: () => setState(() {
-                    _selected = PaymentMethodOption.payAsYouGo;
-                    _selectedPass = null;
-                  }),
+                  isSelected: vm.selected == PaymentMethodOption.payAsYouGo,
+                  onTap: vm.selectPayAsYouGo,
                 ),
                 const SizedBox(height: 12),
 
@@ -143,14 +124,13 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   icon: Icons.card_membership,
                   title: 'Select a Pass',
                   subtitle: 'Rides with a daily, weekly, or annual pass.',
-                  isSelected: _selected == PaymentMethodOption.selectPass,
-                  onTap: _goToPassSelection,
+                  isSelected: vm.selected == PaymentMethodOption.selectPass,
+                  onTap: () => _goToPassSelection(context, vm),
                 ),
               ],
 
               const Spacer(),
 
-              // price summary
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -158,10 +138,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   Text(
                     hasActivePass
                         ? 'Free'
-                        : _selected == PaymentMethodOption.selectPass &&
-                              _selectedPass != null
+                        : vm.selected == PaymentMethodOption.selectPass &&
+                              vm.selectedPass != null
                         ? 'Free'
-                        : '€${unlockFee.toStringAsFixed(2)}',
+                        : '€${PaymentMethodViewModel.unlockFee.toStringAsFixed(2)}',
                     style: AppTextStyle.subheading,
                   ),
                 ],
@@ -175,7 +155,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     style: AppTextStyle.cardTitle.copyWith(fontSize: 18),
                   ),
                   Text(
-                    hasActivePass ? 'Free' : priceLabel,
+                    hasActivePass ? 'Free' : vm.priceLabel,
                     style: AppTextStyle.priceTag,
                   ),
                 ],
@@ -188,8 +168,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   label: 'Confirm Booking',
                   isprimaryColor: true,
                   trailingIcon: Icons.arrow_forward,
-                  onPressed: () =>
-                      _confirmBooking(hasActivePass ? activePass : null),
+                  onPressed: () => _confirmBooking(
+                    context,
+                    hasActivePass ? activePass : null,
+                    vm,
+                  ),
                 ),
               ),
             ],

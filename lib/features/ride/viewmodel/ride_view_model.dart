@@ -1,13 +1,21 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/core/enum/payment_type.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
+import 'package:velo_toulose/models/pass.dart';
+import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/models/ride.dart';
+import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
 
 class RideViewModel extends ChangeNotifier {
   final RideRepository _repository;
-  final MapViewModel _mapViewModel; 
-  RideViewModel(this._repository, this._mapViewModel); 
+  final MapViewModel _mapViewModel;
+  final PaymentRepository _paymentRepository;
+
+  RideViewModel(this._repository, this._mapViewModel, this._paymentRepository);
 
   Ride? activeRide;
   bool isLoading = false;
@@ -72,6 +80,37 @@ class RideViewModel extends ChangeNotifier {
     activeRide = await _repository.getActiveRide(userId);
     if (activeRide != null) _startTimer();
     notifyListeners();
+  }
+
+  // Starts the ride and records the unlock fee payment — no logic in the view
+  Future<void> confirmBooking({
+    required String userId,
+    required String bikeId,
+    required String startStationId,
+    required Pass? usedPass,
+  }) async {
+    final fbUser = fb_auth.FirebaseAuth.instance.currentUser;
+    if (fbUser == null) return;
+    await fbUser.getIdToken();
+
+    await startRide(
+      userId: userId,
+      bikeId: bikeId,
+      startStationId: startStationId,
+    );
+
+    if (usedPass == null) {
+      await _paymentRepository.savePayment(
+        Payment(
+          paymentId: IdGenerator.payment(),
+          userId: userId,
+          type: PaymentType.unlockFee,
+          amount: 2.50,
+          createdAt: DateTime.now(),
+          rideId: activeRide?.rideId,
+        ),
+      );
+    }
   }
 
   void _startTimer() {

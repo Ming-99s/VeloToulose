@@ -1,17 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
-import 'package:velo_toulose/core/enum/payment_type.dart';
-import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
-import 'package:velo_toulose/main_common.dart';
 import 'package:velo_toulose/models/pass.dart';
-import 'package:velo_toulose/models/payment.dart';
-import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 
 class BookingSuccessScreen extends StatefulWidget {
   final String bikeId;
@@ -43,33 +37,15 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
   Future<void> _startRide() async {
     final rideVm = context.read<RideViewModel>();
     final authVm = context.read<AuthViewModel>();
-    final payRepo = context.read<PaymentRepository>();
 
     if (!authVm.isLoggedIn) return;
 
-    final fbUser = fb_auth.FirebaseAuth.instance.currentUser;
-    if (fbUser == null) return;
-    await fbUser.getIdToken(); 
-
-    await rideVm.startRide(
+    await rideVm.confirmBooking(
       userId: authVm.currentUser!.userId,
       bikeId: widget.bikeId,
       startStationId: widget.stationId,
+      usedPass: widget.usedPass,
     );
-
-    // charge unlock fee if no pass
-    if (widget.usedPass == null) {
-      await payRepo.savePayment(
-        Payment(
-          paymentId: IdGenerator.payment(),
-          userId: authVm.currentUser!.userId,
-          type: PaymentType.unlockFee,
-          amount: 2.50,
-          createdAt: DateTime.now(),
-          rideId: rideVm.activeRide?.rideId,
-        ),
-      );
-    }
   }
 
   bool get isPaidWithPass => widget.usedPass != null;
