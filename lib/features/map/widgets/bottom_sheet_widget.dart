@@ -30,17 +30,30 @@ class BottomSheetWidget extends StatelessWidget {
   final MapViewModel viewModel;
   final ScrollController scrollController;
 
+// Replace your existing endRide method in BottomSheetWidget with this:
   Future<void> endRide(BuildContext context) async {
-    final endedRide = await context.read<RideViewModel>().endRide(
-      station.stationId,
-    );
-    if (endedRide == null || !context.mounted) return;
+    final rideVm = context.read<RideViewModel>();
+
+    final endedRide = await rideVm.endRide(station.stationId);
+
+    if (!context.mounted) return;
+
+    // ← Show the actual error so you know exactly what failed
+    if (endedRide == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.redAccent,
+          duration: const Duration(seconds: 6),
+          content: Text('Return failed: ${rideVm.error ?? 'unknown error'}'),
+        ),
+      );
+      return;
+    }
 
     final hasPass = context.read<UserPassViewModel>().hasActivePass;
     final payRepo = context.read<PaymentRepository>();
     final userId = context.read<AuthViewModel>().currentUser!.userId;
 
-    // charge overtime if applicable and no pass
     if (!hasPass && endedRide.isOvertime()) {
       final overtimeCost = endedRide.calculateCost(hasPass: false) - 2.50;
       await payRepo.savePayment(
@@ -62,7 +75,6 @@ class BottomSheetWidget extends StatelessWidget {
       hasPass: hasPass,
     );
 
-    // reload this station's bikes and docks after return
     await context.read<MapViewModel>().loadBikesByStation(station.stationId);
     await context.read<MapViewModel>().loadDockByStation(station.stationId);
 

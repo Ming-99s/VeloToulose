@@ -1,11 +1,15 @@
-/// Generates short, readable IDs like "ride_a3f9", "pay_12bc", etc.
-/// Uses the last 4 hex chars of the current millisecond timestamp.
-class IdGenerator {
-  static String _hex4() =>
-      DateTime.now().millisecondsSinceEpoch.toRadixString(16).substring(9);
+import 'dart:math';
 
-  static String ride() => 'ride_${_hex4()}';
-  static String payment() => 'pay_${_hex4()}';
-  static String notification() => 'notif_${_hex4()}';
-  static String pass(String type) => 'pass_${type}_${_hex4()}';
+class IdGenerator {
+  static final _rng = Random.secure();
+
+  static int _shortId() => 10 + _rng.nextInt(9990); // 10 – 9999
+
+  static String ride() => 'ride_${_shortId()}';
+  static String payment() => 'pay_${_shortId()}';
+  static String notification() => 'notif_${_shortId()}';
+  static String pass(String type) => 'pass_${type}_${_shortId()}';
+  static String station() => 'station_${_shortId()}';
+  static String slot() => 'slot_${_shortId()}';
+  static String bike() => 'bike_${_shortId()}';
 }

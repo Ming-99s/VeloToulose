@@ -4,24 +4,52 @@ import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
+import 'package:velo_toulose/features/notification/view/ride_summary.dart';
+import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/features/ride/widgets/return_station_card.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class StationListSection extends StatelessWidget {
-  const StationListSection({super.key,required this.mapController});
+  const StationListSection({super.key, required this.mapController});
 
   final MapController mapController;
 
-  void _selectStation(Station station, BuildContext context) {
-    context.read<MapViewModel>().selectStation(station);
+  Future<void> _returnBike(Station station, BuildContext context) async {
+    final rideVm = context.read<RideViewModel>();
 
-    // move map to station location after popping back
-    Navigator.pop(context);
+    // show loading while endRide runs
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
 
-    // small delay to let the screen transition finish first
-    Future.delayed(const Duration(milliseconds: 300), () {
-      mapController.move(station.location, 17.0); // zoom in on station
-    });
+    final endedRide = await rideVm.endRide(station.stationId);
+
+    if (!context.mounted) return;
+    Navigator.pop(context); // dismiss loading dialog
+
+    if (endedRide == null) {
+      // endRide failed — show error and stay on screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(rideVm.error ?? 'Could not return bike. Try again.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    // success — go to ride summary, clearing the active ride screen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => RideSummaryScreen(
+          ride: endedRide,
+          hasPass: false, // TODO: pass real value from auth/user viewmodel
+          plan: 'Pay as you go',
+        ),
+      ),
+    );
   }
 
   String _formatDistance(double meters) {
@@ -37,7 +65,6 @@ class StationListSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // section header
         Row(
           children: [
             Container(
@@ -110,9 +137,7 @@ class StationListSection extends StatelessWidget {
                   distanceLabel: distance != null
                       ? _formatDistance(distance)
                       : null,
-                  onTap: hasSlots
-                      ? () => _selectStation(station,context)
-                      : null,
+                  onTap: hasSlots ? () => _returnBike(station, context) : null,
                 );
               },
             ),

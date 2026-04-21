@@ -17,8 +17,8 @@ class PassViewModel extends ChangeNotifier {
 
   PassPlan get selectedPlan => plans[_selectedIndex];
 
-  // build a real Pass object from the selected plan
-  Pass buildSelectedPass() {
+  // FIX #8: userId is required so the Pass is correctly scoped in Firebase
+  Pass buildSelectedPass(String userId) {
     final plan = selectedPlan;
     final now = DateTime.now();
 
@@ -39,6 +39,7 @@ class PassViewModel extends ChangeNotifier {
 
     return Pass(
       passId: IdGenerator.pass(plan.type.name),
+      userId: userId,
       type: plan.type,
       startDate: now,
       endDate: now.add(validity),

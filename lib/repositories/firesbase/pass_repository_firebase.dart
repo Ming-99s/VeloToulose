@@ -11,20 +11,10 @@ class PassRepositoryFirebase implements PassRepository {
 
   DatabaseReference get _passes => _db.ref('passes');
 
+  /// FIX #1: Persists the Pass object so it survives app restarts.
   @override
-  Future<List<Pass>> fetchPass() async {
-    final snapshot = await _passes.get();
-    if (!snapshot.exists) return [];
-
-    final passesMap = Map<String, dynamic>.from(snapshot.value as Map);
-
-    return passesMap.entries
-        .map((entry) {
-          final data = Map<String, dynamic>.from(entry.value as Map);
-          return PassDto.fromJson(entry.key, data);
-        })
-        .where((pass) => pass.isActive)
-        .toList();
+  Future<void> savePass(Pass pass) async {
+    await _passes.child(pass.passId).set(PassDto.toJson(pass));
   }
 
   @override
@@ -33,5 +23,22 @@ class PassRepositoryFirebase implements PassRepository {
     if (!snapshot.exists) return null;
     final data = Map<String, dynamic>.from(snapshot.value as Map);
     return PassDto.fromJson(id, data);
+  }
+
+  @override
+  Future<List<Pass>> fetchPass() async {
+    final snapshot = await _passes.get();
+    if (!snapshot.exists) return [];
+
+    final passesMap = Map<String, dynamic>.from(snapshot.value as Map);
+    return passesMap.entries
+        .map(
+          (e) => PassDto.fromJson(
+            e.key,
+            Map<String, dynamic>.from(e.value as Map),
+          ),
+        )
+        .where((p) => p.isActive)
+        .toList();
   }
 }

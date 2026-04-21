@@ -29,17 +29,23 @@ class UserPassViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // call this when user buys a pass
+  /// Call this when user buys a pass.
+  /// FIX #1: now persists the Pass object to Firebase BEFORE linking it to
+  /// the user, so [loadUserPass] can retrieve it after an app restart.
   Future<void> activatePass(Pass pass) async {
     _activePass = pass;
+    notifyListeners(); // update UI immediately (optimistic)
 
+    // Persist the Pass document first
+    await _repository.savePass(pass);
+
+    // Then link the passId on the user record
     final updatedUser = _authViewModel.currentUser?.copyWith(
       passid: pass.passId,
     );
     if (updatedUser != null) {
       await _authViewModel.updateUser(updatedUser);
     }
-    notifyListeners();
   }
 
   void clearPass() {

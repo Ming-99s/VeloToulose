@@ -86,8 +86,10 @@ class PassView extends StatelessWidget {
                   label: 'Upgrade Plan',
                   isprimaryColor: true,
                   onPressed: () {
-                    // build real Pass object from selected plan
-                    final pass = passVm.buildSelectedPass();
+                    // FIX #8: pass userId so the Pass is correctly owned
+                    final pass = passVm.buildSelectedPass(
+                      authVm.currentUser!.userId,
+                    );
 
                     // activate — syncs to user via UserPassViewModel
                     userPassVm.activatePass(pass);

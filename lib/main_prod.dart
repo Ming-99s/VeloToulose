@@ -28,7 +28,7 @@ import 'package:velo_toulose/repositories/local/pref_repository.dart';
 List<InheritedProvider> get prodProviders {
   final StationRepostiory stationRepo = StationRepositoryFirebase();
   final UserRepository userRepository = UserRepositoryFirebase();
-  final RideRepository rideRepository = RideRepositoryFirebase(stationRepo);
+  final RideRepository rideRepository = RideRepositoryFirebase();
   final PassRepository passRepository = PassRepositoryFirebase();
   final NotificationRepository notifRepo = NotificationRepositoryFirebase();
   final PaymentRepository paymentRepo = PaymentRepositoryFirebase();

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/features/auth/view/auth_screen.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/onBoarding/view/on-boarding_screen.dart';
@@ -61,11 +62,9 @@ class _SplashScreenState extends State<SplashScreen>
     final Widget next;
     if (!widget.onboardingDone) {
       next = const OnBoardingScreen();
-    } else if (auth.isLoggedIn) {
-      next = const MyApp();
     } else {
-      next = const AuthScreen(mode: AuthMode.login);
-    }
+      next = const MyApp();
+    } 
 
     
 
@@ -128,7 +127,7 @@ class _SplashScreenState extends State<SplashScreen>
                   child: CustomPaint(
                     painter: _CircleRevealPainter(
                       radius: _circleRadiusAnimation.value,
-                      color: const Color(0xFFFF5C00),
+                      color: AppColor.primary,
                     ),
                   ),
                 );

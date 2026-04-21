@@ -2,5 +2,6 @@ import '../../models/pass.dart';
 
 abstract class PassRepository {
   Future<List<Pass>> fetchPass();
-   Future<Pass?> getPassById(String id);
+  Future<Pass?> getPassById(String id);
+  Future<void> savePass(Pass pass);
 }

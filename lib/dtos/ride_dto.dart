@@ -1,4 +1,3 @@
-
 import 'package:velo_toulose/models/ride.dart';
 
 class RideDto {
@@ -8,28 +7,28 @@ class RideDto {
   static const String endStationIdKey = 'endStationId';
   static const String startTimeKey = 'startTime';
   static const String endTimeKey = 'endTime';
+  // FIX #4: stored status enables O(1) active-ride lookup via activeRides node
+  static const String statusKey = 'status';
+  static const String statusActive = 'active';
+  static const String statusEnded = 'ended';
+
   // cost and duration NOT stored — derived from startTime/endTime
 
   static Ride fromJson(String id, Map<String, dynamic> json) {
-    assert(json[userIdKey] is String);
-    assert(json[bikeIdKey] is String);
-    assert(json[startStationIdKey] is String);
-    assert(json[startTimeKey] is String);
-
     return Ride(
       rideId: id,
-      userId: json[userIdKey],
-      bikeId: json[bikeIdKey],
-      startStationId: json[startStationIdKey],
-      endStationId: json[endStationIdKey], // nullable — ride in progress
-      startTime: DateTime.parse(json[startTimeKey]),
+      userId: json[userIdKey] as String,
+      bikeId: json[bikeIdKey] as String,
+      startStationId: json[startStationIdKey] as String,
+      endStationId: json[endStationIdKey] as String?,
+      startTime: DateTime.parse(json[startTimeKey] as String),
       endTime: json[endTimeKey] != null
-          ? DateTime.parse(json[endTimeKey])
-          : null, // nullable — ride in progress
+          ? DateTime.parse(json[endTimeKey] as String)
+          : null,
     );
   }
 
-  Map<String, dynamic> toJson(Ride ride) {
+  static Map<String, dynamic> toJson(Ride ride) {
     return {
       userIdKey: ride.userId,
       bikeIdKey: ride.bikeId,
@@ -37,7 +36,7 @@ class RideDto {
       endStationIdKey: ride.endStationId,
       startTimeKey: ride.startTime.toIso8601String(),
       endTimeKey: ride.endTime?.toIso8601String(),
-      // cost and duration NOT stored — they are derived
+      statusKey: ride.isInProgress ? statusActive : statusEnded,
     };
   }
 }
