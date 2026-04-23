@@ -33,7 +33,7 @@ class ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
-    final userPassVm = context.watch<UserPassViewModel>(); // ← add
+    final userPassVm = context.watch<UserPassViewModel>();
     final user = vm.currentUser;
 
     return SafeArea(
@@ -75,7 +75,7 @@ class ProfileContent extends StatelessWidget {
                       right: 0,
                       child: GestureDetector(
                         onTap: () {
-                          // TODO: navigate to edit profile
+                          // navigate to edit profile
                         },
                         child: Container(
                           decoration: BoxDecoration(
