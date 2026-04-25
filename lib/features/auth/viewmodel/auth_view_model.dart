@@ -1,6 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/models/user.dart';
@@ -8,8 +6,15 @@ import 'package:velo_toulose/repositories/abstract/user_repository.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final UserRepository _repository;
+  final UserPassViewModel _userPassViewModel;
+  final NotificationViewModel _notificationViewModel;
 
-  AuthViewModel(this._repository);
+  AuthViewModel(
+    this._repository, {
+    required UserPassViewModel userPassViewModel,
+    required NotificationViewModel notificationViewModel,
+  }) : _userPassViewModel = userPassViewModel,
+       _notificationViewModel = notificationViewModel;
 
   User? currentUser;
   bool isLoading = false;
@@ -23,13 +28,12 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-
     isLoading = true;
     error = null;
     notifyListeners();
-
     try {
       currentUser = await _repository.login(email, password);
+      await _userPassViewModel.loadUserPass(); // ✅
       return true;
     } catch (e) {
       error = e.toString().replaceAll('Exception: ', '');
@@ -39,7 +43,6 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
 
   Future<bool> register(
     String firstName,
@@ -55,11 +58,9 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-
     isLoading = true;
     error = null;
     notifyListeners();
-
     try {
       currentUser = await _repository.register(
         firstName,
@@ -67,6 +68,7 @@ class AuthViewModel extends ChangeNotifier {
         email,
         password,
       );
+      await _userPassViewModel.loadUserPass(); // ✅
       return true;
     } catch (e) {
       error = e.toString().replaceAll('Exception: ', '');
@@ -83,30 +85,12 @@ class AuthViewModel extends ChangeNotifier {
     await _repository.updateUser(updated);
   }
 
-Future<void> restoreSession() async {
-    final fbUser = await fb_auth.FirebaseAuth.instance
-        .authStateChanges()
-        .first; // emits null or User once the SDK is ready
-
-    if (fbUser == null) return;
-
-    try {
-      currentUser = await _repository.getUserById(fbUser.uid);
-      notifyListeners();
-    } catch (e) {
-      await fb_auth.FirebaseAuth.instance.signOut();
-    }
-  }
-
-Future<void> signOut(BuildContext context) async {
-    await fb_auth.FirebaseAuth.instance.signOut();
+  Future<void> signOut() async {
     currentUser = null;
     error = null;
+    _userPassViewModel.clearPass(); 
+    _notificationViewModel.clearNotifications(); 
     notifyListeners();
-
-    // clear per-user state
-    context.read<NotificationViewModel>().clearNotifications();
-    context.read<UserPassViewModel>().clearPass();
   }
 
   void clearError() {

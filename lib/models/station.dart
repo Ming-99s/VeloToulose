@@ -7,14 +7,12 @@ class Station {
   final String stationId;
   final String name;
   final LatLng location;
-  final int capacity;
   final List<Slot> slots;
 
   const Station({
     required this.stationId,
     required this.name,
     required this.location,
-    required this.capacity,
     required this.slots,
   });
 
@@ -34,7 +32,6 @@ class Station {
       stationId: stationId ?? this.stationId,
       name: name ?? this.name,
       location: location ?? this.location,
-      capacity: capacity ?? this.capacity,
       slots: slots ?? this.slots,
     );
   }

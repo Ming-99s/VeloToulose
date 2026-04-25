@@ -7,4 +7,5 @@ class IdGenerator {
   static String payment() => 'pay_${_hex4()}';
   static String notification() => 'notif_${_hex4()}';
   static String pass(String type) => 'pass_${type}_${_hex4()}';
+  static String user() => 'u_${_hex4()}';
 }

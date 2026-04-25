@@ -17,7 +17,7 @@ class ProfileContent extends StatelessWidget {
 
   void _signOutOrLogin(BuildContext context) {
     final vm = context.read<AuthViewModel>();
-    vm.signOut(context);
+    vm.signOut();
 
     vm.isLoggedIn ? Navigator.pop(context) : null;
     Navigator.push(

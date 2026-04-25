@@ -45,9 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _startCircleAnimation() async {
-    final auth = context.read<AuthViewModel>();
-    await auth.restoreSession();
-
+    // final auth = context.read<AuthViewModel>();
     await _circleScaleController.forward();
     await _circleFadeController.forward();
 

@@ -14,21 +14,18 @@ class StationRepositoryMock implements StationRepostiory {
         stationId: '1',
         name: 'Central Station',
         location: const LatLng(11.492046, 104.943556),
-        capacity: 10,
         slots: _buildSlots(stationId: '1', total: 10, occupied: 5),
       ),
       Station(
         stationId: '2',
         name: 'River Park',
         location: const LatLng(11.5530, 104.9250),
-        capacity: 8,
         slots: _buildSlots(stationId: '2', total: 8, occupied: 2),
       ),
       Station(
         stationId: '3',
         name: 'Night Market',
         location: const LatLng(11.5580, 104.9350),
-        capacity: 6,
         slots: _buildSlots(stationId: '3', total: 6, occupied: 0),
       ),
     ];

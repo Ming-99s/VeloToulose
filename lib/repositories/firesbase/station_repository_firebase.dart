@@ -39,7 +39,6 @@ class StationRepositoryFirebase implements StationRepostiory {
           stationId: id,
           name: data['name'] as String,
           location: location,
-          capacity: data['capacity'] as int,
           slots: slots,
         ),
       );
