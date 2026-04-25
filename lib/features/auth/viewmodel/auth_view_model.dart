@@ -5,16 +5,15 @@ import 'package:velo_toulose/models/user.dart';
 import 'package:velo_toulose/repositories/abstract/user_repository.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final UserRepository _repository;
-  final UserPassViewModel _userPassViewModel;
-  final NotificationViewModel _notificationViewModel;
+  final UserRepository userRepository;
+  final UserPassViewModel userPassViewModel;
+  final NotificationViewModel notificationViewModel;
 
-  AuthViewModel(
-    this._repository, {
-    required UserPassViewModel userPassViewModel,
-    required NotificationViewModel notificationViewModel,
-  }) : _userPassViewModel = userPassViewModel,
-       _notificationViewModel = notificationViewModel;
+  AuthViewModel({
+    required this.userRepository,
+    required this.userPassViewModel,
+    required this.notificationViewModel,
+  });
 
   User? currentUser;
   bool isLoading = false;
@@ -32,8 +31,8 @@ class AuthViewModel extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      currentUser = await _repository.login(email, password);
-      await _userPassViewModel.loadUserPass(); // ✅
+      currentUser = await userRepository.login(email, password);
+      await userPassViewModel.loadUserPass(currentUser!.userId);
       return true;
     } catch (e) {
       error = e.toString().replaceAll('Exception: ', '');
@@ -62,13 +61,12 @@ class AuthViewModel extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      currentUser = await _repository.register(
+      currentUser = await userRepository.register(
         firstName,
         lastName,
         email,
         password,
       );
-      await _userPassViewModel.loadUserPass(); // ✅
       return true;
     } catch (e) {
       error = e.toString().replaceAll('Exception: ', '');
@@ -82,14 +80,14 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> updateUser(User updated) async {
     currentUser = updated;
     notifyListeners();
-    await _repository.updateUser(updated);
+    await userRepository.updateUser(updated);
   }
 
   Future<void> signOut() async {
     currentUser = null;
     error = null;
-    _userPassViewModel.clearPass(); 
-    _notificationViewModel.clearNotifications(); 
+    userPassViewModel.clearPass();
+    notificationViewModel.clearNotifications();
     notifyListeners();
   }
 

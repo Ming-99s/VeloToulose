@@ -89,7 +89,7 @@ class PassView extends StatelessWidget {
                     final userId = authVm.currentUser!.userId;
 
                     final pass = await passVm
-                        .purchaseSelectedPass(); 
+                        .purchaseSelectedPass(userId); 
 
                     await userPassVm.activatePass(pass);
                     notiVm.addPassPurchase(pass, userId);

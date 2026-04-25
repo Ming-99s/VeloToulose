@@ -75,7 +75,6 @@ class _AuthScreenState extends State<AuthScreen> {
 if (success && mounted) {
   final uid = viewModel.currentUser!.userId;
   // reload user-specific data
-  await context.read<UserPassViewModel>().loadUserPass();
   await context.read<NotificationViewModel>()
     .loadNotifications(uid);
   await context.read<RideViewModel>()

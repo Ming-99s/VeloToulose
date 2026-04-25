@@ -9,9 +9,8 @@ import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
 class PassViewModel extends ChangeNotifier {
   final List<PassPlan> plans = kPassPlans;
   final PassRepository passRepository;
-  final AuthViewModel authViewModel;
 
-  PassViewModel({required this.passRepository, required this.authViewModel});
+  PassViewModel({required this.passRepository});
 
   int _selectedIndex = 2;
   int get selectedIndex => _selectedIndex;
@@ -22,9 +21,7 @@ class PassViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Pass> purchaseSelectedPass() async {
-    final userId = authViewModel.currentUser?.userId;
-    if (userId == null) throw Exception('User not logged in');
+  Future<Pass> purchaseSelectedPass(String userId) async {
 
     final plan = selectedPlan;
     final now = DateTime.now();

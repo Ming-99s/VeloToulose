@@ -30,19 +30,7 @@ List<InheritedProvider> devProviders(UserRepository userRepository) {
   final notifRepo = NotificationRepositoryMock();
   final paymentRepo = PaymentRepositoryMock();
 
-  final notifViewModel = NotificationViewModel(notifRepo);
 
-  // create without authViewModel first
-  final userPassViewModel = UserPassViewModel(repository: passRepository);
-
-  final authViewModel = AuthViewModel(
-    userRepository,
-    userPassViewModel: userPassViewModel,
-    notificationViewModel: notifViewModel,
-  );
-
-  // break the cycle after both are created
-  userPassViewModel.setAuthViewModel(authViewModel); 
 
   return [
     Provider<PassRepository>(create: (_) => passRepository),
@@ -52,21 +40,21 @@ List<InheritedProvider> devProviders(UserRepository userRepository) {
     Provider<RideRepository>(create: (_) => rideRepository),
     Provider<NotificationRepository>(create: (_) => notifRepo),
     Provider<PaymentRepository>(create: (_) => paymentRepo),
-    ChangeNotifierProvider<AuthViewModel>.value(value: authViewModel),
-    ChangeNotifierProvider<UserPassViewModel>.value(value: userPassViewModel),
+
+    ChangeNotifierProvider<UserPassViewModel>(create: (_)=> UserPassViewModel(passRepository: passRepository),),
     ChangeNotifierProvider<PassViewModel>(
       create: (_) => PassViewModel(
         passRepository: passRepository,
-        authViewModel: authViewModel,
       ),
     ),
+    ChangeNotifierProvider<NotificationViewModel>(create: (_)=> NotificationViewModel(notifRepo)),
+    ChangeNotifierProvider<AuthViewModel>(create: (context)=> AuthViewModel(userRepository: userRepository, userPassViewModel: context.read<UserPassViewModel>(), notificationViewModel: context.read<NotificationViewModel>(),)),
     ChangeNotifierProvider<MapViewModel>(
       create: (_) => MapViewModel(stationRepo),
     ),
     ChangeNotifierProvider<RideViewModel>(
       create: (_) => RideViewModel(rideRepository, MapViewModel(stationRepo)),
     ),
-    ChangeNotifierProvider<NotificationViewModel>.value(value: notifViewModel),
   ];
 }
 

@@ -4,28 +4,19 @@ import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/repositories/abstract/pass_repository.dart';
 
 class UserPassViewModel extends ChangeNotifier {
-  final PassRepository _repository;
-  late AuthViewModel _authViewModel;
+  final PassRepository passRepository;
 
-  UserPassViewModel({required PassRepository repository})
-    : _repository = repository;
-
-  void setAuthViewModel(AuthViewModel auth) {
-    _authViewModel = auth;
-  }
+  UserPassViewModel({
+    required  this.passRepository,
+  });
 
   Pass? _activePass;
   Pass? get activePass => _activePass;
   bool get hasActivePass => _activePass != null && _activePass!.isValid();
 
-  Future<void> loadUserPass() async {
-    final userId = _authViewModel.currentUser?.userId;
-    if (userId == null) {
-      _activePass = null;
-      notifyListeners();
-      return;
-    }
-    _activePass = await _repository.getPassForUser(userId);
+  Future<void> loadUserPass(String userId) async {
+    
+    _activePass = await passRepository.getPassForUser(userId);
     notifyListeners();
   }
 

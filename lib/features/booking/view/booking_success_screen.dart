@@ -8,7 +8,6 @@ import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
-import 'package:velo_toulose/main_common.dart';
 import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
@@ -47,9 +46,6 @@ class _BookingSuccessScreenState extends State<BookingSuccessScreen> {
 
     if (!authVm.isLoggedIn) return;
 
-    final fbUser = fb_auth.FirebaseAuth.instance.currentUser;
-    if (fbUser == null) return;
-    await fbUser.getIdToken(); 
 
     await rideVm.startRide(
       userId: authVm.currentUser!.userId,
