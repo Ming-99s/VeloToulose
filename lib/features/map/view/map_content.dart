@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/utils/timer_util.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/map/view/search_screen.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/features/map/widgets/build_station_marker_widget.dart';
@@ -78,6 +78,7 @@ void _goToSearch() {
   Widget build(BuildContext context) {
     final mapViewModel = context.watch<MapViewModel>();
     final rideViewModel = context.watch<RideViewModel>();
+    final authVm = context.watch<AuthViewModel>();
 
     return Stack(
       children: [
@@ -158,7 +159,7 @@ void _goToSearch() {
         ),
 
         // active ride banner — only show when ride is active
-        if (rideViewModel.hasActiveRide)
+        if (rideViewModel.hasActiveRide && authVm.isLoggedIn)
           _buildRideActiveBanner(
             timerLabel: TimeUtils(activeRide: rideViewModel.activeRide).timerLabel,
             onTap: _goRideActive,

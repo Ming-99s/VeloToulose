@@ -1,17 +1,17 @@
-
 import 'package:velo_toulose/models/ride.dart';
 
 class RideDto {
+  static const String rideId = 'rideId';
   static const String userIdKey = 'userId';
   static const String bikeIdKey = 'bikeId';
   static const String startStationIdKey = 'startStationId';
   static const String endStationIdKey = 'endStationId';
   static const String startTimeKey = 'startTime';
   static const String endTimeKey = 'endTime';
-  // cost and duration NOT stored — derived from startTime/endTime
 
   static Ride fromJson(String id, Map<String, dynamic> json) {
     assert(json[userIdKey] is String);
+    assert(json[rideId] is String);
     assert(json[bikeIdKey] is String);
     assert(json[startStationIdKey] is String);
     assert(json[startTimeKey] is String);
@@ -31,13 +31,13 @@ class RideDto {
 
   Map<String, dynamic> toJson(Ride ride) {
     return {
+      rideId : ride.rideId,
       userIdKey: ride.userId,
       bikeIdKey: ride.bikeId,
       startStationIdKey: ride.startStationId,
       endStationIdKey: ride.endStationId,
       startTimeKey: ride.startTime.toIso8601String(),
       endTimeKey: ride.endTime?.toIso8601String(),
-      // cost and duration NOT stored — they are derived
     };
   }
 }

@@ -63,6 +63,8 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('users_box');
   await Hive.openBox('user_passes_box');
+  await Hive.openBox('rides_box');
+
 
   final userRepository = UserRepositoryMock();
   final prefRepo = PreferencesRepository();
