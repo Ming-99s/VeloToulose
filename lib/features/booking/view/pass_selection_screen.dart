@@ -85,23 +85,18 @@ class PassView extends StatelessWidget {
                 child: AppButton(
                   label: 'Upgrade Plan',
                   isprimaryColor: true,
-                  onPressed: () {
-                    // build real Pass object from selected plan
-                    final pass = passVm.buildSelectedPass();
-
-                    // activate — syncs to user via UserPassViewModel
-                    userPassVm.activatePass(pass);
-
-                    // send notification
+                 onPressed: () async {
                     final userId = authVm.currentUser!.userId;
+
+                    final pass = await passVm
+                        .purchaseSelectedPass(); 
+
+                    await userPassVm.activatePass(pass);
                     notiVm.addPassPurchase(pass, userId);
 
                     if (bikeId != null && station != null) {
-                      // came from booking flow — pop with pass result
-                      // PaymentMethodScreen will receive it
                       Navigator.of(context).pop(pass);
                     } else {
-                      // came from profile — just go back
                       Navigator.of(context).pop();
                     }
                   },

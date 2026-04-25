@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
@@ -21,16 +23,28 @@ import 'package:velo_toulose/repositories/mock/ride_repository_mock.dart';
 import 'package:velo_toulose/repositories/mock/station_repository_mock.dart';
 import 'package:velo_toulose/repositories/mock/user_repository_mock.dart';
 
-List<InheritedProvider> get devProviders {
-  final StationRepostiory stationRepo = StationRepositoryMock();
-  final UserRepository userRepository = UserRepositoryMock();
-  final RideRepository rideRepository = RideRepositoryMock(stationRepo);
-  final PassRepository passRepository = PassRepositoryMock();
-  final NotificationRepository notifRepo = NotificationRepositoryMock();
-  final PaymentRepository paymentRepo = PaymentRepositoryMock();
+List<InheritedProvider> devProviders(UserRepository userRepository) {
+  final stationRepo = StationRepositoryMock();
+  final rideRepository = RideRepositoryMock(stationRepo);
+  final passRepository = PassRepositoryMock();
+  final notifRepo = NotificationRepositoryMock();
+  final paymentRepo = PaymentRepositoryMock();
+
+  final notifViewModel = NotificationViewModel(notifRepo);
+
+  // create without authViewModel first
+  final userPassViewModel = UserPassViewModel(repository: passRepository);
+
+  final authViewModel = AuthViewModel(
+    userRepository,
+    userPassViewModel: userPassViewModel,
+    notificationViewModel: notifViewModel,
+  );
+
+  // break the cycle after both are created
+  userPassViewModel.setAuthViewModel(authViewModel); 
 
   return [
-    // repositories
     Provider<PassRepository>(create: (_) => passRepository),
     Provider<StationRepostiory>(create: (_) => stationRepo),
     Provider<UserRepository>(create: (_) => userRepository),
@@ -38,36 +52,36 @@ List<InheritedProvider> get devProviders {
     Provider<RideRepository>(create: (_) => rideRepository),
     Provider<NotificationRepository>(create: (_) => notifRepo),
     Provider<PaymentRepository>(create: (_) => paymentRepo),
-
-    // Global State
-    ChangeNotifierProvider<AuthViewModel>(
-      create: (_) => AuthViewModel(userRepository),
-    ),
-    ChangeNotifierProvider<UserPassViewModel>(
-      create: (context) => UserPassViewModel(
-        repository: context.read<PassRepository>(),
-        authViewModel: context.read<AuthViewModel>(),
+    ChangeNotifierProvider<AuthViewModel>.value(value: authViewModel),
+    ChangeNotifierProvider<UserPassViewModel>.value(value: userPassViewModel),
+    ChangeNotifierProvider<PassViewModel>(
+      create: (_) => PassViewModel(
+        passRepository: passRepository,
+        authViewModel: authViewModel,
       ),
     ),
-    ChangeNotifierProvider<PassViewModel>(
-      create: (_) => PassViewModel(passRepository: passRepository),
-    ),
     ChangeNotifierProvider<MapViewModel>(
-      create: (context) => MapViewModel(context.read<StationRepostiory>()),
+      create: (_) => MapViewModel(stationRepo),
     ),
     ChangeNotifierProvider<RideViewModel>(
-      create: (context) =>
-          RideViewModel(rideRepository, context.read<MapViewModel>()),
+      create: (_) => RideViewModel(rideRepository, MapViewModel(stationRepo)),
     ),
-    ChangeNotifierProvider<NotificationViewModel>(
-      create: (_) => NotificationViewModel(notifRepo),
-    ),
+    ChangeNotifierProvider<NotificationViewModel>.value(value: notifViewModel),
   ];
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('users_box');
+  await Hive.openBox('user_passes_box');
+
+  final userRepository = UserRepositoryMock();
   final prefRepo = PreferencesRepository();
   final onboardingDone = await prefRepo.isOnboardingDone();
-  mainCommon(devProviders, onboardingDone: onboardingDone);
+
+  mainCommon(
+    devProviders(userRepository),
+    onboardingDone: onboardingDone,
+  ); 
 }

@@ -25,7 +25,6 @@ class StationDto {
         (locationData['lat'] as num).toDouble(),
         (locationData['lng'] as num).toDouble(),
       ),
-      capacity: json[capacityKey] as int,
       slots: slots,
     );
   }
@@ -37,7 +36,6 @@ class StationDto {
         'lat': station.location.latitude,
         'lng': station.location.longitude,
       },
-      capacityKey: station.capacity,
     };
   }
 }

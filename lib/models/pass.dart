@@ -1,15 +1,16 @@
 import 'package:velo_toulose/core/enum/pass_type.dart';
 
-
 class Pass {
   final String passId;
   final PassType type;
+  final String userId;
   final DateTime startDate;
   final DateTime endDate;
   final double price;
   final bool isActive;
 
   const Pass({
+    required this.userId,
     required this.passId,
     required this.type,
     required this.startDate,
@@ -24,6 +25,7 @@ class Pass {
   }
 
   Pass copyWith({
+    String? userId,
     String? passId,
     PassType? type,
     DateTime? startDate,
@@ -32,6 +34,7 @@ class Pass {
     bool? isActive,
   }) {
     return Pass(
+      userId: userId ?? this.userId,
       passId: passId ?? this.passId,
       type: type ?? this.type,
       startDate: startDate ?? this.startDate,

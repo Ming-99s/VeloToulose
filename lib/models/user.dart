@@ -4,7 +4,6 @@ class User {
   final String firstName;
   final String lastName;
   final String email;
-  final String phone;
   final String password;
   final String? passid;
 
@@ -13,7 +12,6 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.email,
-    required this.phone,
     required this.password,
     this.passid,
   });
@@ -38,7 +36,6 @@ class User {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
-      phone: phone ?? this.phone,
       password: password ?? this.password,
       passid: clearPass ? null : passid ?? this.passid,
     );
