@@ -78,7 +78,6 @@ void _goToSearch() {
   Widget build(BuildContext context) {
     final mapViewModel = context.watch<MapViewModel>();
     final rideViewModel = context.watch<RideViewModel>();
-    final authVm = context.watch<AuthViewModel>();
 
     return Stack(
       children: [
@@ -159,7 +158,7 @@ void _goToSearch() {
         ),
 
         // active ride banner — only show when ride is active
-        if (rideViewModel.hasActiveRide && authVm.isLoggedIn)
+        if (rideViewModel.hasActiveRide)
           _buildRideActiveBanner(
             timerLabel: TimeUtils(activeRide: rideViewModel.activeRide).timerLabel,
             onTap: _goRideActive,

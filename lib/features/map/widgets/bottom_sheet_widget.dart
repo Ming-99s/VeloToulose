@@ -87,7 +87,6 @@ class BottomSheetWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final rideViewModel = context.watch<RideViewModel>();
     final hasActiveRide = rideViewModel.hasActiveRide;
-
     final emptySlots = viewModel.getDockAt();
     final availableBikes = viewModel.getBikesAt();
 
@@ -243,6 +242,17 @@ class BottomSheetWidget extends StatelessWidget {
                 child: Center(
                   child: Text(
                     'No bikes available at this station',
+                    style: TextStyle(color: AppColor.textSecondary),
+                  ),
+                ),
+              ),
+
+            if (emptySlots.isEmpty && hasActiveRide)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Text(
+                    'No EmptySlots available at this station',
                     style: TextStyle(color: AppColor.textSecondary),
                   ),
                 ),
