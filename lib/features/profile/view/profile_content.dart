@@ -17,9 +17,9 @@ class ProfileContent extends StatelessWidget {
 
   void _signOutOrLogin(BuildContext context) {
     final vm = context.read<AuthViewModel>();
-    vm.signOut();
-
-    vm.isLoggedIn ? Navigator.pop(context) : null;
+    if (vm.isLoggedIn) {
+      vm.signOut();
+    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => AuthScreen(mode: AuthMode.login)),
@@ -168,7 +168,10 @@ class ProfileContent extends StatelessWidget {
                           confirmLabel: 'Sign out',
                           cancelLabel: 'Cancel',
                           isDanger: true,
-                          onTap: () => _signOutOrLogin(context),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _signOutOrLogin(context);
+                          },
                         ),
                       )
                     : _signOutOrLogin(context);
