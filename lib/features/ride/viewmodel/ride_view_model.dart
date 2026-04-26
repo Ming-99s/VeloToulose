@@ -1,20 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/map/viewmodel/map_view_model.dart';
 import 'package:velo_toulose/models/ride.dart';
 import 'package:velo_toulose/repositories/abstract/ride_repository.dart';
 
 class RideViewModel extends ChangeNotifier {
   final RideRepository _repository;
-  final MapViewModel _mapViewModel; 
-  RideViewModel(this._repository, this._mapViewModel); 
+  final MapViewModel _mapViewModel;
+  final AuthViewModel _authViewModel;
+  RideViewModel(this._repository, this._mapViewModel, this._authViewModel);
 
   Ride? activeRide;
   bool isLoading = false;
   String? error;
   Timer? _timer;
 
-  bool get hasActiveRide => activeRide != null;
+  bool get hasActiveRide => activeRide != null && _authViewModel.isLoggedIn;
 
   Future<void> startRide({
     required String userId,
@@ -48,7 +50,6 @@ class RideViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      
       final endedRide = await _repository.endRide(
         activeRide!.rideId,
         endStationId,

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -53,7 +55,7 @@ List<InheritedProvider> devProviders(UserRepository userRepository) {
       create: (_) => MapViewModel(stationRepo),
     ),
     ChangeNotifierProvider<RideViewModel>(
-      create: (_) => RideViewModel(rideRepository, MapViewModel(stationRepo)),
+      create: (context) => RideViewModel(rideRepository,context.read<MapViewModel>(),context.read<AuthViewModel>()),
     ),
   ];
 }

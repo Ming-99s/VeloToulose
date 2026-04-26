@@ -4,7 +4,11 @@ import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/models/station.dart';
 
 class BuildStationMarkerWidget extends StatelessWidget {
-  const BuildStationMarkerWidget({super.key, required this.station,required this.hasActiveRide});
+  const BuildStationMarkerWidget({
+    super.key,
+    required this.station,
+    required this.hasActiveRide,
+  });
 
   final Station station;
   final bool hasActiveRide;
@@ -20,9 +24,15 @@ class BuildStationMarkerWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Icon(hasActiveRide ? Icons.dock : Icons.pedal_bike, color: Colors.white, size: 20),
+          Icon(
+            hasActiveRide? Icons.dock : Icons.pedal_bike,
+            color: Colors.white,
+            size: 20,
+          ),
           Text(
-            hasActiveRide ?  station.getFreeSlots().length.toString() : station.getAvailableBikes().length.toString() ,
+            hasActiveRide
+                ? station.getFreeSlots().length.toString()
+                : station.getAvailableBikes().length.toString(),
             style: AppTextStyle.buttonText,
           ),
         ],
