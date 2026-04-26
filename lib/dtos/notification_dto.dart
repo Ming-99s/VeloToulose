@@ -1,6 +1,7 @@
 import 'package:velo_toulose/models/notification.dart';
 
 class NotificationDto {
+  static const String notificationId = 'notificationId';
   static const String userIdKey = 'userId';
   static const String typeKey = 'type';
   static const String messageKey = 'message';
@@ -9,6 +10,7 @@ class NotificationDto {
 
   static AppNotification fromJson(String id, Map<String, dynamic> json) {
     assert(json[userIdKey] is String);
+    assert(json[notificationId] is String);
     assert(json[typeKey] is String);
     assert(json[messageKey] is String);
     assert(json[sentAtKey] is String);
@@ -26,6 +28,7 @@ class NotificationDto {
 
   static Map<String, dynamic> toJson(AppNotification notification) {
     return {
+      notificationId : notification.notificationId,
       userIdKey: notification.userId,
       typeKey: notification.type,
       messageKey: notification.message,

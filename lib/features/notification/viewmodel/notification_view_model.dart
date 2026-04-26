@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/models/notification.dart';
 import 'package:velo_toulose/models/pass.dart';
+import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/models/ride.dart';
 import 'package:velo_toulose/repositories/abstract/notification_repository.dart';
 
@@ -70,6 +71,21 @@ class NotificationViewModel extends ChangeNotifier {
     _hasPassData[notification.notificationId] = hasPass;
 
     await loadNotifications(ride.userId);
+  }
+
+  // called when unlock fee is charged (pay-as-you-go)
+  Future<void> addPaymentReceipt(Payment payment) async {
+    final message =
+        'Unlock fee of €${payment.amount.toStringAsFixed(2)} charged. Enjoy your ride!';
+    final notification = AppNotification(
+      notificationId: IdGenerator.notification(),
+      userId: payment.userId,
+      type: 'payment_receipt',
+      message: message,
+      sentAt: DateTime.now(),
+    );
+    await _repository.saveNotification(notification);
+    await loadNotifications(payment.userId);
   }
 
   // called when a user buys a pass

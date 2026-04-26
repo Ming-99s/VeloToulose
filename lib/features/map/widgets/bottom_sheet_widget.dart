@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
 import 'package:velo_toulose/core/enum/payment_type.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/map/utils/distance_format.dart';
@@ -45,7 +46,7 @@ class BottomSheetWidget extends StatelessWidget {
       final overtimeCost = endedRide.calculateCost(hasPass: false) - 2.50;
       await payRepo.savePayment(
         Payment(
-          paymentId: 'pay_${DateTime.now().millisecondsSinceEpoch}',
+          paymentId: IdGenerator.payment(),
           userId: userId,
           type: PaymentType.overtimeFee,
           amount: overtimeCost,
