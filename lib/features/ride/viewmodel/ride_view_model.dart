@@ -81,6 +81,9 @@ class RideViewModel extends ChangeNotifier {
       notifyListeners();
     });
   }
+  Future<Ride?> getRideById(String rideId) async {
+    return await _repository.getRideById(rideId);
+  }
 
   void _stopTimer() {
     _timer?.cancel();

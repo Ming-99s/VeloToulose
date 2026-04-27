@@ -39,6 +39,7 @@ class BottomSheetWidget extends StatelessWidget {
     final auth = context.read<AuthViewModel>();
     final hasPass = context.read<UserPassViewModel>().hasActivePass;
     final payRepo = context.read<PaymentRepository>();
+    
     final userId = auth.currentUser!.userId;
 
     // Charge overtime if applicable and no pass

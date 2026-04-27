@@ -6,6 +6,10 @@ abstract class RideRepository {
     required String bikeId,
     required String startStationId,
   });
+
   Future<Ride> endRide(String rideId, String endStationId);
+
   Future<Ride?> getActiveRide(String userId);
+
+  Future<Ride?> getRideById(String rideId);
 }

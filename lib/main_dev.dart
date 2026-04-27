@@ -49,7 +49,7 @@ List<InheritedProvider> devProviders(UserRepository userRepository) {
         passRepository: passRepository,
       ),
     ),
-    ChangeNotifierProvider<NotificationViewModel>(create: (_)=> NotificationViewModel(notifRepo)),
+    ChangeNotifierProvider<NotificationViewModel>(create: (_)=> NotificationViewModel(notifRepo,paymentRepo)),
     ChangeNotifierProvider<AuthViewModel>(create: (context)=> AuthViewModel(userRepository: userRepository, userPassViewModel: context.read<UserPassViewModel>(), notificationViewModel: context.read<NotificationViewModel>(),)),
     ChangeNotifierProvider<MapViewModel>(
       create: (_) => MapViewModel(stationRepo),
@@ -67,6 +67,10 @@ void main() async {
   await Hive.openBox('user_passes_box');
   await Hive.openBox('rides_box');
   await Hive.openBox('notifications_box');
+  await Hive.openBox('payments_box');
+
+
+  
 
 
   final userRepository = UserRepositoryMock();

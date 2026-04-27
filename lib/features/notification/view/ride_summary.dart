@@ -47,7 +47,7 @@ class RideSummaryScreen extends StatelessWidget {
             children: [
               const RideStatusWidget(),
               const SizedBox(height: 24),
-              RideStationInfoWidget(ride: ride), // ← pass ride
+              RideStationInfoWidget(ride: ride), 
               const SizedBox(height: 18),
               SubscriptionMethodWidget(ride: ride, hasPass: hasPass,plan: plan,),
               const SizedBox(height: 20),

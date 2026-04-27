@@ -1,32 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:velo_toulose/core/enum/notification_type.dart';
 import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/models/notification.dart';
 import 'package:velo_toulose/models/pass.dart';
 import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/models/ride.dart';
 import 'package:velo_toulose/repositories/abstract/notification_repository.dart';
+import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 
 class NotificationViewModel extends ChangeNotifier {
-  final NotificationRepository _repository;
+final NotificationRepository _repository;
+  final PaymentRepository _paymentRepository;
 
-  NotificationViewModel(this._repository);
+  NotificationViewModel(this._repository, this._paymentRepository);
 
   List<AppNotification> _notifications = [];
   List<AppNotification> get notifications => _notifications;
 
-  // store ride + pass data per notification for RideSummaryScreen
-  final Map<String, Ride> _rideData = {};
-  final Map<String, bool> _hasPassData = {};
-
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
-  Ride? getRideForNotification(String notificationId) =>
-      _rideData[notificationId];
-
-  bool hadPassForNotification(String notificationId) =>
-      _hasPassData[notificationId] ?? false;
-
-  // load notifications for current user only
   Future<void> loadNotifications(String userId) async {
     _notifications = await _repository.getNotificationsByUser(userId);
     notifyListeners();
@@ -34,15 +26,56 @@ class NotificationViewModel extends ChangeNotifier {
 
   void clearNotifications() {
     _notifications = [];
-    _rideData.clear();
-    _hasPassData.clear();
     notifyListeners();
   }
+String? getRideIdForNotification(String notificationId) {
+    try {
+      final notification = _notifications.firstWhere(
+        (n) => n.notificationId == notificationId,
+      );
+      return notification.rideId;
+    } catch (_) {
+      return null;
+    }
+  }
+  Future<Payment?> getPaymentForNotification(String notificationId) async {
+    try {
+      final notification = _notifications.firstWhere(
+        (n) => n.notificationId == notificationId,
+      );
 
-  // called when a ride ends
-  Future<void> addRideReceipt(Ride ride, {required bool hasPass}) async {
+      if (notification.paymentId == null) return null;
+
+      return await _paymentRepository.getPaymentById(notification.paymentId!);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Payment?> getPassPaymentForNotification(String notificationId) async {
+    try {
+      final notification = _notifications.firstWhere(
+        (n) => n.notificationId == notificationId,
+      );
+
+      if (notification.paymentId == null) return null;
+
+      final payment = await _paymentRepository.getPaymentById(
+        notification.paymentId!,
+      );
+
+      if (payment == null || payment.passId == null) return null;
+
+      return payment;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> addRideReceipt(Ride ride, {required bool hasPass, String? paymentId}) async {
     final duration = ride.duration;
-    const int freeMinutes = 30;
+    final cost = ride.calculateCost(hasPass: hasPass);
+    const int freeMinutes = Ride.freeMinutes;
 
     String message;
     if (hasPass) {
@@ -50,55 +83,51 @@ class NotificationViewModel extends ChangeNotifier {
     } else if (!ride.isOvertime()) {
       message = 'Ride completed in ${duration}min. Total: Free!';
     } else {
-      final cost = ride.cost;
       final overtime = duration - freeMinutes;
       message =
-          'Ride completed in ${duration}min. Overtime: ${overtime}min × €0.05 = €${cost.toStringAsFixed(2)}';
+          'Ride completed in ${duration}min. Overtime: ${overtime}min x €0.05 = €${cost.toStringAsFixed(2)}';
     }
 
     final notification = AppNotification(
       notificationId: IdGenerator.notification(),
       userId: ride.userId,
-      type: 'payment_receipt',
+      type: NotificationType.rideReceipt,
       message: message,
       sentAt: DateTime.now(),
+      rideId: ride.rideId,
+      paymentId: paymentId,
     );
 
     await _repository.saveNotification(notification);
-
-    // store ride data for RideSummaryScreen
-    _rideData[notification.notificationId] = ride;
-    _hasPassData[notification.notificationId] = hasPass;
-
     await loadNotifications(ride.userId);
   }
 
-  // called when unlock fee is charged (pay-as-you-go)
   Future<void> addPaymentReceipt(Payment payment) async {
     final message =
         'Unlock fee of €${payment.amount.toStringAsFixed(2)} charged. Enjoy your ride!';
     final notification = AppNotification(
       notificationId: IdGenerator.notification(),
       userId: payment.userId,
-      type: 'payment_receipt',
+      type: NotificationType.unlockFee,
       message: message,
       sentAt: DateTime.now(),
+      paymentId: payment.paymentId,
     );
     await _repository.saveNotification(notification);
     await loadNotifications(payment.userId);
   }
 
-  // called when a user buys a pass
-  Future<void> addPassPurchase(Pass pass, String userId) async {
+  Future<void> addPassPurchase(Pass pass, String userId, {String? paymentId}) async {
     final message =
         'You purchased a ${pass.type.name} pass for €${pass.price.toStringAsFixed(2)}.';
 
     final notification = AppNotification(
       notificationId: IdGenerator.notification(),
       userId: userId,
-      type: 'pass_purchase',
+      type: NotificationType.passPurchase,
       message: message,
       sentAt: DateTime.now(),
+      paymentId: paymentId,
     );
 
     await _repository.saveNotification(notification);

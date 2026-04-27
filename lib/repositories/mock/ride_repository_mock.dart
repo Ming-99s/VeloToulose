@@ -47,6 +47,17 @@ class RideRepositoryMock implements RideRepository {
   }
 
   @override
+  Future<Ride?> getRideById(String rideId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final raw = _box.get(rideId);
+    if (raw == null) return null;
+
+    final map = Map<String, dynamic>.from(raw as Map);
+    return RideDto.fromJson(map[RideDto.rideId], map);
+  }
+  
+  @override
   Future<Ride?> getActiveRide(String userId) async {
     await Future.delayed(const Duration(milliseconds: 300));
     for (final e in _box.values) {
