@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:velo_toulose/core/constant/app_color.dart';
 import 'package:velo_toulose/core/constant/app_text_style.dart';
+import 'package:velo_toulose/core/enum/payment_type.dart';
+import 'package:velo_toulose/core/utils/id_generator.dart';
 import 'package:velo_toulose/core/widgets/botton.dart';
+import 'package:velo_toulose/features/auth/viewmodel/auth_view_model.dart';
 import 'package:velo_toulose/features/booking/view/booking_success_screen.dart';
 import 'package:velo_toulose/features/booking/view/pass_selection_screen.dart';
 import 'package:velo_toulose/features/booking/viewmodel/user_pass_viewmodel.dart';
 import 'package:velo_toulose/features/booking/widgets/selected_bike_card.dart';
+import 'package:velo_toulose/features/notification/viewmodel/notification_view_model.dart';
 import 'package:velo_toulose/features/profile/widgets/pass_card.dart';
+import 'package:velo_toulose/features/ride/viewmodel/ride_view_model.dart';
 import 'package:velo_toulose/models/pass.dart';
+import 'package:velo_toulose/models/payment.dart';
 import 'package:velo_toulose/models/station.dart';
+import 'package:velo_toulose/repositories/abstract/payment_repository.dart';
 
 enum PaymentMethodOption { payAsYouGo, selectPass }
 
@@ -55,15 +62,43 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
     }
   }
 
-  void _confirmBooking(Pass? activePass) {
+Future<void> _confirmBooking(Pass? activePass) async {
+    final usedPass = activePass ?? _selectedPass;
+    final authVm = context.read<AuthViewModel>();
+    final payRepo = context.read<PaymentRepository>();
+    final notiVm = context.read<NotificationViewModel>();
+    final rideVm = context.read<RideViewModel>();
+
+    final userId = authVm.currentUser!.userId;
+
+    await rideVm.startRide(
+      userId: userId,
+      bikeId: widget.bikeId,
+      startStationId: widget.station.stationId,
+    );
+
+    if (usedPass == null) {
+      final payment = Payment(
+        paymentId: IdGenerator.payment(),
+        userId: userId,
+        type: PaymentType.unlockFee,
+        amount: 2.50,
+        createdAt: DateTime.now(),
+        rideId: rideVm.activeRide?.rideId,
+      );
+      await payRepo.savePayment(payment);
+      notiVm.addPaymentReceipt(payment); 
+    }
+
+    if (!context.mounted) return;
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BookingSuccessScreen(
           bikeId: widget.bikeId,
           stationName: widget.station.name,
           stationId: widget.station.stationId,
-          usedPass:
-              activePass ?? _selectedPass, // use active pass or selected pass
+          usedPass: usedPass,
         ),
       ),
     );

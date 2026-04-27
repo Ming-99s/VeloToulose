@@ -56,7 +56,7 @@ class RideViewModel extends ChangeNotifier {
       );
       activeRide = null;
       _stopTimer();
-      await _mapViewModel.loadStations(); //refresh after return
+      await _mapViewModel.loadStations();
       notifyListeners();
       return endedRide;
     } catch (e) {

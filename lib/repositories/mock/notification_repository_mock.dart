@@ -1,14 +1,19 @@
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:velo_toulose/dtos/notification_dto.dart';
 import 'package:velo_toulose/models/notification.dart';
 import 'package:velo_toulose/repositories/abstract/notification_repository.dart';
 
 class NotificationRepositoryMock implements NotificationRepository {
-  final List<AppNotification> _notifications = [];
+  Box get _box => Hive.box('notifications_box');
 
   @override
   Future<List<AppNotification>> getNotificationsByUser(String userId) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    // only return notifications for this specific user
-    return _notifications
+    return _box.values
+        .map((e) {
+          final map = Map<String, dynamic>.from(e as Map);
+          return NotificationDto.fromJson(map['notificationId'], map);
+        })
         .where((n) => n.userId == userId)
         .toList()
         .reversed
@@ -18,24 +23,34 @@ class NotificationRepositoryMock implements NotificationRepository {
   @override
   Future<void> saveNotification(AppNotification notification) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    _notifications.insert(0, notification);
+    await _box.put(
+      notification.notificationId,
+      NotificationDto.toJson(notification),
+    );
   }
 
   @override
   Future<void> markAsRead(String notificationId) async {
-    final index = _notifications.indexWhere(
-      (n) => n.notificationId == notificationId,
+    final raw = _box.get(notificationId);
+    if (raw == null) return;
+    final map = Map<String, dynamic>.from(raw as Map);
+    final notification = NotificationDto.fromJson(notificationId, map);
+    await _box.put(
+      notificationId,
+      NotificationDto.toJson(notification.markAsRead()),
     );
-    if (index != -1) {
-      _notifications[index] = _notifications[index].markAsRead();
-    }
   }
 
   @override
   Future<void> markAllAsRead(String userId) async {
-    for (var i = 0; i < _notifications.length; i++) {
-      if (_notifications[i].userId == userId && !_notifications[i].isRead) {
-        _notifications[i] = _notifications[i].markAsRead();
+    for (final key in _box.keys) {
+      final raw = _box.get(key);
+      if (raw == null) continue;
+      final map = Map<String, dynamic>.from(raw as Map);
+      if (map[NotificationDto.userIdKey] == userId &&
+          map[NotificationDto.isReadKey] == false) {
+        final notification = NotificationDto.fromJson(key as String, map);
+        await _box.put(key, NotificationDto.toJson(notification.markAsRead()));
       }
     }
   }

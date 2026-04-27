@@ -66,6 +66,7 @@ void main() async {
   await Hive.openBox('users_box');
   await Hive.openBox('user_passes_box');
   await Hive.openBox('rides_box');
+  await Hive.openBox('notifications_box');
 
 
   final userRepository = UserRepositoryMock();
