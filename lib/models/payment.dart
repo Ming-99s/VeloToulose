@@ -7,8 +7,8 @@ class Payment {
   final PaymentType type;
   final double amount;
   final DateTime createdAt;
-  final String? rideId; // null if paying for a pass
-  final String? passId; // null if paying for a ride
+  final String? rideId; 
+  final String? passId; 
 
   const Payment({
     required this.paymentId,

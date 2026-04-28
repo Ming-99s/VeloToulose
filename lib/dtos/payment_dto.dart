@@ -2,6 +2,7 @@ import 'package:velo_toulose/core/enum/payment_type.dart';
 import 'package:velo_toulose/models/payment.dart';
 
 class PaymentDto {
+  static const String paymentIdKey = 'paymentId';
   static const String userIdKey = 'userId';
   static const String typeKey = 'type';
   static const String amountKey = 'amount';
@@ -10,6 +11,10 @@ class PaymentDto {
   static const String passIdKey = 'passId';
 
   static Payment fromJson(String id, Map<String, dynamic> json) {
+    assert(json[userIdKey] is String);
+    assert(json[typeKey] is String);
+    assert(json[amountKey] is num);
+    assert(json[createdAtKey] is String);
     return Payment(
       paymentId: id,
       userId: json[userIdKey] as String,
@@ -23,6 +28,7 @@ class PaymentDto {
 
   static Map<String, dynamic> toJson(Payment payment) {
     return {
+      paymentIdKey: payment.paymentId, 
       userIdKey: payment.userId,
       typeKey: payment.type.toJson(),
       amountKey: payment.amount,

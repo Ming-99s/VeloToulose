@@ -13,6 +13,7 @@ class UserPassViewModel extends ChangeNotifier {
   Pass? _activePass;
   Pass? get activePass => _activePass;
   bool get hasActivePass => _activePass != null && _activePass!.isValid();
+  String? get currentPlanName => activePass?.type.name;
 
   Future<void> loadUserPass(String userId) async {
     
